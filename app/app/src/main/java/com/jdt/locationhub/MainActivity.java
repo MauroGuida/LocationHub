@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             fetchClientLocation();
-            locationHandler.postDelayed(this, 10000);
+            locationHandler.postDelayed(this, 10000); //Client position is updated every 10 Seconds
         }
     };
 

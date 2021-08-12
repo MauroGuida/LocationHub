@@ -36,6 +36,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mapView;
     private GoogleMap map;
+
     private Marker thisClientPositionMarker;
     private Map<String, Marker> clientsPositionMarkers;
 
@@ -73,19 +74,20 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         addressTextV = v.findViewById(R.id.address_TextV_FragmentHome);
 
         mainViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            //Update location information on the screen
             usernameTextV.setText(user.getUsername());
 
-            if (user.isLocationValid() && map != null && thisClientPositionMarker != null) {
-                locationTextV.setText(getResources().getString(R.string.LatLon, String.valueOf(user.getLatitude()), String.valueOf(user.getLongitude())));
-                addressTextV.setText(user.getAddressLine());
+            //Updates location information on the screen if available
+            if (user.getPosition() != null && map != null && thisClientPositionMarker != null) {
+                locationTextV.setText(getResources().getString(R.string.LatLon, String.valueOf(user.getPosition().getLatitude()), String.valueOf(user.getPosition().getLongitude())));
+                addressTextV.setText(user.getPosition().getAddressLine());
 
                 //Refresh client position
-                thisClientPositionMarker.setPosition(new LatLng(user.getLatitude(), user.getLongitude()));
-                thisClientPositionMarker.setVisible(true);
-
-//            //Center the camera on the Client position
-//            map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(user.getLatitude(), user.getLongitude())));
+                thisClientPositionMarker.setPosition(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()));
+                if (!thisClientPositionMarker.isVisible()) {
+                    thisClientPositionMarker.setVisible(true);
+                    //Center the camera on the Client position
+                    map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude())));
+                }
             }
         });
 
@@ -105,8 +107,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
+        resetMap();
+    }
 
-        //Add Azure marker that indicate Client position
+    private void resetMap() {
+        //Create an Azure marker for client position
         thisClientPositionMarker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(0,0))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
@@ -117,10 +122,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         clientsPositionMarkers = new HashMap<>();
 
         //Place a Red marker for each client connected to the server
-        mainViewModel.getAllClientsLatLong().forEach(liveUser -> {
-            liveUser.observe(getViewLifecycleOwner(), user ->
-                    setOnMapPoint(new LatLng(user.getLatitude(), user.getLongitude()), user.getUsername()));
-        });
+        mainViewModel.getAllClientsLatLong().forEach(liveUser ->
+                liveUser.observe(getViewLifecycleOwner(), user ->
+                        setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername())));
     }
 
     public void setOnMapPoint(LatLng point, String name, boolean center) {

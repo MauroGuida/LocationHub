@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
 
 import java.util.LinkedList;
@@ -16,7 +17,7 @@ public class MainViewModel extends ViewModel {
     private final List<MutableLiveData<User>> connectedUsers = new LinkedList<>();
 
     public void init(String username) {
-        currentUser.setValue(new User.Builder().username(username).build());
+        currentUser.setValue(new User(username));
     }
 
     public LiveData<User> getCurrentUser() {
@@ -25,14 +26,14 @@ public class MainViewModel extends ViewModel {
 
     public List<? extends LiveData<User>> getAllClientsLatLong() {
         //TODO Recuperare i dati dal server
-        connectedUsers.add(new MutableLiveData<>(new User.Builder().latitude(15.0).longitude(18.8).username("Davide").build()));
+        connectedUsers.add(new MutableLiveData<>(
+                new User("Davide", new Position.Builder().latitude(15.0).longitude(18.8).build())));
 
         return connectedUsers;
     }
 
     public void sendClientPosition(Address address) {
-        currentUser.setValue(new User.Builder()
-                .username(currentUser.getValue().getUsername())
+        currentUser.setValue(new User(currentUser.getValue().getUsername(), new Position.Builder()
                 .latitude(address.getLatitude())
                 .longitude(address.getLongitude())
                 .addressLine(address.getAddressLine(0))
@@ -40,6 +41,6 @@ public class MainViewModel extends ViewModel {
                 .postalCode(address.getPostalCode())
                 .countryName(address.getCountryName())
                 .countryCode(address.getCountryCode())
-                .build());
+                .build()));
     }
 }
