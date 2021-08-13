@@ -1,0 +1,11 @@
+.vscode
+
+# executable
+myserver
+
+# obj files
+main.o
+server.o
+logger.o
+client.o
+avl.o

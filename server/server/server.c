@@ -9,7 +9,7 @@ typedef struct thread_args_t thread_args_t;
 
 void *handle_client(void *arg)
 {
-    // TO-DO 
+    printf("New client.\n");
 }
 
 
