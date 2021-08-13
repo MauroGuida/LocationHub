@@ -61,6 +61,17 @@ node_t *node_min_value(node_t *node)
     return curr;
 }
 
+void tree_free(node_t *root)
+{
+    if (root)
+    {
+        tree_free(root->left);
+        tree_free(root->right);
+        node_destroy(root);
+    }
+}
+
+
 node_t *node_create(void)
 {
     node_t *node = (node_t *)malloc(sizeof(node_t));
@@ -239,4 +250,81 @@ node_t *node_find(node_t *root, comparator comp, char *key)
     }
 
     return NULL;
+}
+
+avl_t *avl_create(void)
+{
+    avl_t *avl = (avl_t *)malloc(sizeof(avl_t));
+
+    if (avl)
+    {
+        avl->root = NULL;
+        avl->comp = strcmp;
+        pthread_mutex_init(&avl->lock, NULL);
+    }
+
+    return avl;
+}
+
+void avl_destroy(avl_t *avl)
+{
+    if (avl)
+    {
+        pthread_mutex_lock(&avl->lock);
+        tree_free(avl->root);
+        pthread_mutex_unlock(&avl->lock);
+        
+        pthread_mutex_destroy(&avl->lock);
+        free(avl);
+    }
+}
+
+void avl_insert(avl_t *avl, char *nickname, client_location_t *client_location, bool is_private)
+{
+    if (avl)
+    {
+        node_t *new_node = node_create();
+
+        if (new_node)
+        { 
+            new_node->nickname = strdup(nickname);
+            new_node->client_location = client_location_duplicate(client_location);
+            new_node->is_private = is_private;
+
+            pthread_mutex_lock(&avl->lock);
+            avl->root = node_insert(avl->root, new_node, avl->comp);
+            pthread_mutex_unlock(&avl->lock);
+        }
+    }
+}
+
+void avl_update(avl_t *avl, char *nickname, client_location_t *client_location, bool is_private)
+{
+    node_t *target = NULL;
+
+    if (avl)
+    {
+        pthread_mutex_lock(&avl->lock);
+        
+        target = node_find(avl->root, avl->comp, nickname);
+        if (target)
+        {
+            client_location_destroy(target->client_location);
+            target->client_location = client_location_duplicate(client_location);
+
+            target->is_private = is_private;
+        }  
+        
+        pthread_mutex_unlock(&avl->lock);  
+    }
+}
+
+void avl_remove(avl_t *avl, char * key)
+{
+    if (avl && key)
+    {
+        pthread_mutex_lock(&avl->lock);
+        avl->root = node_remove(avl->root, key, avl->comp);
+        pthread_mutex_unlock(&avl->lock);
+    }
 }
