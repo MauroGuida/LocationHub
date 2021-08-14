@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -126,7 +125,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         clientsPositionMarkers = new HashMap<>();
 
         //Place a Red marker for each client connected to the server
-        mainViewModel.getAllClientsLatLong().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
+        mainViewModel.getAllUsersPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
                 users.forEach(user ->
                         setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername())));
     }

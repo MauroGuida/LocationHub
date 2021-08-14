@@ -20,8 +20,9 @@ public class MainViewModel extends ViewModel {
 
     public void init(String username) {
         currentUser.setValue(new User(username));
+    }
 
-        //TODO The code below should be called periodically
+    public void updateUsersPosition() {
         try {
             ServerSocket serverSocket = ServerSocket.getServerSocket();
             connectedUsers.setValue(serverSocket.getAllConnectedUsers());
@@ -30,11 +31,7 @@ public class MainViewModel extends ViewModel {
         }
     }
 
-    public LiveData<User> getCurrentUser() {
-        return currentUser;
-    }
-
-    public LiveData<? extends List<User>> getAllClientsLatLong() {
+    public LiveData<? extends List<User>> getAllUsersPosition() {
         return connectedUsers;
     }
 
@@ -48,5 +45,9 @@ public class MainViewModel extends ViewModel {
                 .countryName(address.getCountryName())
                 .countryCode(address.getCountryCode())
                 .build()));
+    }
+
+    public LiveData<User> getCurrentUser() {
+        return currentUser;
     }
 }

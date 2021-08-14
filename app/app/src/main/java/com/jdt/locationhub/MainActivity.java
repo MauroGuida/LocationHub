@@ -32,8 +32,9 @@ public class MainActivity extends AppCompatActivity {
     Runnable locationFetcher = new Runnable() {
         @Override
         public void run() {
-            fetchClientLocation();
-            locationHandler.postDelayed(this, 10000); //Client position is updated every 10 Seconds
+            fetchClientLocation(); //Updates Client this position
+            mainViewModel.updateUsersPosition(); //Updates Users position
+            locationHandler.postDelayed(this, 10000); //Repeat this process every 10 Seconds
         }
     };
 
