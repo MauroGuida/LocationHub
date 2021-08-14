@@ -28,7 +28,7 @@ void logger_destroy(logger_t *logger)
     if (logger)
     {
         pthread_mutex_lock(&logger->lock);
-        fclose(logger->logfile);
+        if(logger->logfile) fclose(logger->logfile);
         pthread_mutex_unlock(&logger->lock);
 
         pthread_mutex_destroy(&logger->lock);

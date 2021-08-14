@@ -9,7 +9,12 @@ typedef struct thread_args_t thread_args_t;
 
 void *handle_client(void *arg)
 {
+    thread_args_t *targs = (thread_args_t *)arg;
+
     printf("New client.\n");
+
+    free(targs);
+    pthread_exit((char *)0);
 }
 
 
