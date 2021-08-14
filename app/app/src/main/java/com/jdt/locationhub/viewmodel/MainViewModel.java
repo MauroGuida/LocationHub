@@ -20,21 +20,21 @@ public class MainViewModel extends ViewModel {
 
     public void init(String username) {
         currentUser.setValue(new User(username));
-    }
 
-    public LiveData<User> getCurrentUser() {
-        return currentUser;
-    }
-
-    //TODO This function should be called periodically
-    public LiveData<? extends List<User>> getAllClientsLatLong() {
+        //TODO The code below should be called periodically
         try {
             ServerSocket serverSocket = ServerSocket.getServerSocket();
             connectedUsers.setValue(serverSocket.getAllConnectedUsers());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public LiveData<User> getCurrentUser() {
+        return currentUser;
+    }
+
+    public LiveData<? extends List<User>> getAllClientsLatLong() {
         return connectedUsers;
     }
 
