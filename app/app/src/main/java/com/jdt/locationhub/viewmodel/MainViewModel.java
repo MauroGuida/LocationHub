@@ -8,13 +8,15 @@ import androidx.lifecycle.ViewModel;
 
 import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
+import com.jdt.locationhub.repository.ServerSocket;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MainViewModel extends ViewModel {
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
-    private final List<MutableLiveData<User>> connectedUsers = new LinkedList<>();
+    private final MutableLiveData<List<User>> connectedUsers = new MutableLiveData<>();
 
     public void init(String username) {
         currentUser.setValue(new User(username));
@@ -24,10 +26,14 @@ public class MainViewModel extends ViewModel {
         return currentUser;
     }
 
-    public List<? extends LiveData<User>> getAllClientsLatLong() {
-        //TODO Recuperare i dati dal server
-        connectedUsers.add(new MutableLiveData<>(
-                new User("Davide", new Position.Builder().latitude(15.0).longitude(18.8).build())));
+    //TODO This function should be called periodically
+    public LiveData<? extends List<User>> getAllClientsLatLong() {
+        try {
+            ServerSocket serverSocket = ServerSocket.getServerSocket();
+            connectedUsers.setValue(serverSocket.getAllConnectedUsers());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return connectedUsers;
     }

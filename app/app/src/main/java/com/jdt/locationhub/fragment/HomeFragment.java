@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.view.LayoutInflater;
@@ -21,9 +23,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.jdt.locationhub.R;
+import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.viewmodel.MainViewModel;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -122,11 +126,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         clientsPositionMarkers = new HashMap<>();
 
         //Place a Red marker for each client connected to the server
-        mainViewModel.getAllClientsLatLong().forEach(liveUser ->
-                liveUser.observe(getViewLifecycleOwner(), user ->
+        mainViewModel.getAllClientsLatLong().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
+                users.forEach(user ->
                         setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername())));
     }
 
+    //Set an user Marker on the map or replace his position if already exists
     public void setOnMapPoint(LatLng point, String name, boolean center) {
         if (map == null) return;
 
