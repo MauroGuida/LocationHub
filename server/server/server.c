@@ -1,5 +1,7 @@
 #include "./server.h"
 
+#define BUF_SIZE 256
+
 struct thread_args_t
 {
     client_addr_t *client_addr;
@@ -36,14 +38,42 @@ void thread_args_destroy(thread_args_t *targs)
 void *handle_client(void *arg)
 {
     thread_args_t *targs = NULL;
+    server_t *server = NULL;
     char *client_ip_addr = NULL;
     int client_port_num = 0;
+    int client_sockfd = 0;
+    char buf[BUF_SIZE] = {'\0'};
+    int n = 0;
+    client_request_t req;
 
     targs = (thread_args_t *)arg;
+    server = targs->server;
     client_ip_addr = inet_ntoa(targs->client_addr->sockaddr.sin_addr);
     client_port_num = ntohs(targs->client_addr->sockaddr.sin_port);
+    client_sockfd = targs->client_addr->sockfd;
 
-    printf("New client [%s:%d].\n", client_ip_addr, client_port_num);
+
+    log_print(server->logger, LOG_NEW_CONNECTION, client_ip_addr, client_port_num);
+
+    for (;;)
+    {
+        n = read(client_sockfd, buf, BUF_SIZE);
+
+        if (n == 0 || (n == 1 && errno == ECONNRESET))
+        {
+            log_print(server->logger, LOG_DISCONNECTION, client_ip_addr, client_port_num);
+            break;
+        }
+
+        if (n != 1)
+        {
+            buf[n] = '\0';
+            
+            req = extract_request(buf);
+
+            // TODO
+        }
+    }
 
     thread_args_destroy(targs);
     pthread_exit((char *)0);

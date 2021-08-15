@@ -9,3 +9,6 @@ server.o
 logger.o
 client.o
 avl.o
+
+# logfile
+location_hub.log
