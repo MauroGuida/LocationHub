@@ -7,13 +7,45 @@ struct thread_args_t
 };
 typedef struct thread_args_t thread_args_t;
 
+thread_args_t *thread_args_create(server_t *server, int client_sockfd, struct sockaddr_in *client_sockaddr)
+{
+    thread_args_t *targs = (thread_args_t *)malloc(sizeof(thread_args_t));
+
+    if (targs)
+    {
+        targs->server = server;
+        targs->client_addr = client_addr_create();
+        targs->client_addr->sockfd = client_sockfd;
+        memcpy(&targs->client_addr->sockaddr, client_sockaddr, sizeof(struct sockaddr_in));
+    }
+
+    return targs;
+}
+
+void thread_args_destroy(thread_args_t *targs)
+{
+    if (targs)
+    {
+        targs->server = NULL;
+        client_addr_destroy(targs->client_addr);
+        free(targs);
+    }
+}
+
+
 void *handle_client(void *arg)
 {
-    thread_args_t *targs = (thread_args_t *)arg;
+    thread_args_t *targs = NULL;
+    char *client_ip_addr = NULL;
+    int client_port_num = 0;
 
-    printf("New client.\n");
+    targs = (thread_args_t *)arg;
+    client_ip_addr = inet_ntoa(targs->client_addr->sockaddr.sin_addr);
+    client_port_num = ntohs(targs->client_addr->sockaddr.sin_port);
 
-    free(targs);
+    printf("New client [%s:%d].\n", client_ip_addr, client_port_num);
+
+    thread_args_destroy(targs);
     pthread_exit((char *)0);
 }
 
@@ -110,11 +142,7 @@ int server_accept(server_t *server)
             return err;
         }
 
-        targs = (thread_args_t *)malloc(sizeof(thread_args_t));
-        targs->server = server;
-        targs->client_addr = client_addr_create();
-        targs->client_addr->sockfd = client_sockfd;
-        memcpy(&targs->client_addr->sockaddr, &client_sockaddr, sizeof(struct sockaddr_in));
+        targs = thread_args_create(server, client_sockfd, &client_sockaddr);
 
         if ((errno = pthread_create(&tid, NULL, handle_client, targs)) != 0)
         {
