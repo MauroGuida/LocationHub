@@ -6,6 +6,7 @@ myserver
 # obj files
 main.o
 server.o
+server_utils.o
 logger.o
 client.o
 avl.o
