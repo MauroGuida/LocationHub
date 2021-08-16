@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = HomeFragment.newInstance();
                     break;
                 case R.id.nav_people:
-                    selectedFragment = PeopleFragment.newInstance(null, null);
+                    selectedFragment = PeopleFragment.newInstance();
                     break;
                 case R.id.nav_settings:
                     selectedFragment = SettingsFragment.newInstance(null, null);

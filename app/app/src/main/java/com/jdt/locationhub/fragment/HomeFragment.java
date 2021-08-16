@@ -63,8 +63,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mainViewModel = ViewModelProviders.of(requireActivity()).get(MainViewModel.class);
         //if (getArguments() != null) { }
+        mainViewModel = ViewModelProviders.of(requireActivity()).get(MainViewModel.class);
     }
 
     @Override
