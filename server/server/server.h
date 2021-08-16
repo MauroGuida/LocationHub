@@ -2,6 +2,7 @@
 #define __SERVER_H__
 
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 
 #include "../logger/logger.h"
 #include "../avl/avl.h"
+#include "./server_utils.h"
 
 #define BACKLOG 25
 

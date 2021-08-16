@@ -1,5 +1,7 @@
 #include "./server.h"
 
+#define BUF_SIZE 256
+
 struct thread_args_t
 {
     client_addr_t *client_addr;
@@ -7,13 +9,73 @@ struct thread_args_t
 };
 typedef struct thread_args_t thread_args_t;
 
+thread_args_t *thread_args_create(server_t *server, int client_sockfd, struct sockaddr_in *client_sockaddr)
+{
+    thread_args_t *targs = (thread_args_t *)malloc(sizeof(thread_args_t));
+
+    if (targs)
+    {
+        targs->server = server;
+        targs->client_addr = client_addr_create();
+        targs->client_addr->sockfd = client_sockfd;
+        memcpy(&targs->client_addr->sockaddr, client_sockaddr, sizeof(struct sockaddr_in));
+    }
+
+    return targs;
+}
+
+void thread_args_destroy(thread_args_t *targs)
+{
+    if (targs)
+    {
+        targs->server = NULL;
+        client_addr_destroy(targs->client_addr);
+        free(targs);
+    }
+}
+
+
 void *handle_client(void *arg)
 {
-    thread_args_t *targs = (thread_args_t *)arg;
+    thread_args_t *targs = NULL;
+    server_t *server = NULL;
+    char *client_ip_addr = NULL;
+    int client_port_num = 0;
+    int client_sockfd = 0;
+    char buf[BUF_SIZE] = {'\0'};
+    int n = 0;
+    client_request_t req;
 
-    printf("New client.\n");
+    targs = (thread_args_t *)arg;
+    server = targs->server;
+    client_ip_addr = inet_ntoa(targs->client_addr->sockaddr.sin_addr);
+    client_port_num = ntohs(targs->client_addr->sockaddr.sin_port);
+    client_sockfd = targs->client_addr->sockfd;
 
-    free(targs);
+
+    log_print(server->logger, LOG_NEW_CONNECTION, client_ip_addr, client_port_num);
+
+    for (;;)
+    {
+        n = read(client_sockfd, buf, BUF_SIZE);
+
+        if (n == 0 || (n == 1 && errno == ECONNRESET))
+        {
+            log_print(server->logger, LOG_DISCONNECTION, client_ip_addr, client_port_num);
+            break;
+        }
+
+        if (n != 1)
+        {
+            buf[n] = '\0';
+            
+            req = extract_request(buf);
+
+            // TODO
+        }
+    }
+
+    thread_args_destroy(targs);
     pthread_exit((char *)0);
 }
 
@@ -110,11 +172,7 @@ int server_accept(server_t *server)
             return err;
         }
 
-        targs = (thread_args_t *)malloc(sizeof(thread_args_t));
-        targs->server = server;
-        targs->client_addr = client_addr_create();
-        targs->client_addr->sockfd = client_sockfd;
-        memcpy(&targs->client_addr->sockaddr, &client_sockaddr, sizeof(struct sockaddr_in));
+        targs = thread_args_create(server, client_sockfd, &client_sockaddr);
 
         if ((errno = pthread_create(&tid, NULL, handle_client, targs)) != 0)
         {
