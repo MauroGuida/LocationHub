@@ -1,6 +1,6 @@
 #include "./server.h"
 
-#define BUF_SIZE 256
+#define BUF_SIZE 512
 
 struct thread_args_t
 {
@@ -37,7 +37,7 @@ void thread_args_destroy(thread_args_t *targs)
 void sign_up(server_t *server, char **nickname, char *str, int client_sockfd)
 {
     *nickname = extract_nickname(str);
-    bool success = avl_insert(server->avl, *nickname, NULL, true);
+    bool success = avl_insert(server->avl, *nickname);
     if (success)
     {
         write(client_sockfd, "OK\n", 2);
@@ -48,6 +48,26 @@ void sign_up(server_t *server, char **nickname, char *str, int client_sockfd)
         *nickname = NULL;
         write(client_sockfd, "ERR\n", 3);
     }
+}
+
+void send_locations_to_client(server_t *server, char *nickname, int client_sockfd)
+{
+    // TODO 
+}
+
+void set_client_location(server_t *server, char *nickname, char *str, int client_sockfd)
+{
+    client_location_t *client_location = extract_client_location(str);
+    avl_update_location(server->avl, nickname, client_location);
+    client_location_destroy(client_location);
+    write(client_sockfd, "OK\n", 2);
+}
+
+void set_client_privacy(server_t *server, char *nickname, char *str, int client_sockfd)
+{
+    bool privacy = extract_privacy(str);
+    avl_update_privacy(server->avl, nickname, privacy);
+    write(client_sockfd, "OK\n", 2);
 }
 
 void *handle_client(void *arg)
@@ -97,6 +117,21 @@ void *handle_client(void *arg)
                 sign_up(server, &nickname, buf, client_sockfd);
                 break;
             
+            case GET_LOCATIONS:
+                log_print(server->logger, LOG_GET_LOCATIONS, client_ip_addr, client_port_num);
+                send_locations_to_client(server, nickname, client_sockfd);
+                break;
+
+            case SEND_LOCATION:
+                log_print(server->logger, LOG_SEND_LOCATION, client_ip_addr, client_port_num);
+                set_client_location(server, nickname, buf, client_sockfd);
+                break;
+            
+            case SET_PRIVACY:
+                log_print(server->logger, LOG_SET_PRIVACY, client_ip_addr, client_port_num);
+                set_client_privacy(server, nickname, buf, client_sockfd);
+                break;
+
             default:
                 break;
             }

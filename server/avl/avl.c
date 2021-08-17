@@ -186,8 +186,11 @@ node_t *node_remove(node_t *root, char *key, comparator comp)
         {
             node_t *tmp = node_min_value(root->right);
             
-            free(root->nickname); root->nickname = NULL;
-            client_location_destroy(root->client_location); root->client_location = NULL;
+            free(root->nickname); 
+            root->nickname = NULL;
+
+            client_location_destroy(root->client_location); 
+            root->client_location = NULL;
 
             if (tmp->nickname)
             {
@@ -285,7 +288,7 @@ void avl_destroy(avl_t *avl)
     }
 }
 
-bool avl_insert(avl_t *avl, char *nickname, client_location_t *client_location, bool is_private)
+bool avl_insert(avl_t *avl, char *nickname)
 {
     if (avl)
     {
@@ -294,40 +297,61 @@ bool avl_insert(avl_t *avl, char *nickname, client_location_t *client_location, 
         if (new_node)
         { 
             new_node->nickname = strdup(nickname);
-            new_node->client_location = client_location_duplicate(client_location);
-            new_node->is_private = is_private;
+            new_node->client_location = NULL;
+            new_node->is_private = true;
 
             pthread_mutex_lock(&avl->lock);
-            int prev_size = tree_size(avl->root);
+            int before_size = tree_size(avl->root);
             avl->root = node_insert(avl->root, new_node, avl->comp);
-            int next_size = tree_size(avl->root);
+            int after_size = tree_size(avl->root);
             pthread_mutex_unlock(&avl->lock);
 
-            return next_size > prev_size;
+            if (!(after_size > before_size)) 
+            {
+                node_destroy(new_node);
+            }
+            
+            return after_size > before_size;
         }
     }
 
     return false;
 }
 
-void avl_update(avl_t *avl, char *nickname, client_location_t *client_location, bool is_private)
+void avl_update_location(avl_t *avl, char *nickname, client_location_t *client_location)
 {
     node_t *target = NULL;
 
     if (avl)
     {
         pthread_mutex_lock(&avl->lock);
-        
+
         target = node_find(avl->root, avl->comp, nickname);
         if (target)
         {
             client_location_destroy(target->client_location);
             target->client_location = client_location_duplicate(client_location);
+        }
 
-            target->is_private = is_private;
-        }  
-        
-        pthread_mutex_unlock(&avl->lock);  
+        pthread_mutex_unlock(&avl->lock);
+    }
+}
+
+void avl_update_privacy(avl_t *avl, char *nickname, bool privacy)
+{
+    node_t *target = NULL;
+
+    if (avl)
+    {
+        pthread_mutex_lock(&avl->lock);
+
+        target = node_find(avl->root, avl->comp, nickname);
+        if (target)
+        {
+            target->is_private = privacy;
+        }
+
+        pthread_mutex_unlock(&avl->lock);
     }
 }
 

@@ -4,7 +4,8 @@ static const char *client_request_strings[] =
 {
     [SIGN_UP]       = "SIGN_UP",
     [GET_LOCATIONS] = "GET_LOCATIONS",
-    [SEND_LOCATION] = "SEND_LOCATION"
+    [SEND_LOCATION] = "SEND_LOCATION",
+    [SET_PRIVACY]   = "SET_PRIVACY"
 };
 
 int get_request(char *string)
@@ -63,4 +64,57 @@ char *extract_nickname(char *str)
     free(copy_str);
 
     return nickname;
+}
+
+client_location_t *extract_client_location(char *str)
+{
+    char *open_delimiter = "[";
+    char *close_delimiter = "]";
+    char *field_delimiter = ";";
+    char *target = NULL;
+    char *start = NULL;
+    char *end = NULL;
+    client_location_t *client_location = NULL;
+
+    if ((start = strstr(str, open_delimiter)) != NULL)
+    {
+        start += strlen(open_delimiter);
+        if ((end = strstr(str, close_delimiter)) != NULL)
+        {
+            target = (char *)malloc(end - start + 1);
+            memcpy(target, start, end - start);
+            target[end - start] = '\0';
+        }
+    }
+
+    client_location = client_location_create();
+    for (struct { int i; char *ptr; } s = { 0, strtok(target, field_delimiter) }; s.ptr; s.ptr = strtok(NULL, field_delimiter), ++s.i)
+    {
+        client_location_set(client_location, s.i, s.ptr);
+    }
+
+    free(target);
+
+    return client_location;
+}
+
+bool extract_privacy(char *str)
+{
+    char *copy_str = NULL; 
+    char *ptr = NULL;
+    char *delimiter = " ";
+    bool result = false;
+
+    copy_str = (char *)malloc(sizeof(char) * (strlen(str) + 1));
+    strcpy(copy_str, str);
+
+    ptr = strtok(copy_str, delimiter);
+    ptr = strtok(NULL, " ");
+    ptr = strtok(NULL, " ");
+
+    result = (strcmp(ptr, "1") == 0);
+    
+    free(copy_str);
+    
+    return result;
 }
