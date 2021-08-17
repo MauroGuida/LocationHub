@@ -1,6 +1,7 @@
 package com.jdt.locationhub.adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,20 +13,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jdt.locationhub.R;
 import com.jdt.locationhub.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     //Viewholder class for initializing views
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView usernameTextV;
+        private final TextView latlongTextV;
+        private final TextView addressLineTextV;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             usernameTextV = itemView.findViewById(R.id.username_TextV_UserCardView);
+            latlongTextV = itemView.findViewById(R.id.latlong_TextV_UserCardView);
+            addressLineTextV = itemView.findViewById(R.id.addressLine_TextV_UserCardView);
         }
     }
 
-    private Context context;
+    private final Context context;
     private List<User> userList;
 
     public UserAdapter(Context context, List<User> userList) {
@@ -43,7 +48,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull UserAdapter.ViewHolder holder, int position) {
         User u = userList.get(position);
+
         holder.usernameTextV.setText(u.getUsername());
+        if (u.getPosition() != null) {
+            holder.latlongTextV.setText(context.getResources().getString(R.string.LatLon,
+                    String.valueOf(u.getPosition().getLatitude()),
+                    String.valueOf(u.getPosition().getLongitude())));
+            holder.addressLineTextV.setText(u.getPosition().getAddressLine());
+        }
     }
 
     @Override
