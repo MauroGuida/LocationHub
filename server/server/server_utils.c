@@ -22,9 +22,9 @@ int get_request(char *string)
 
 client_request_t extract_request(char *str)
 {
-    char *ptr;
+    char *ptr = NULL;
     char *delimiter = " ";
-    char *request;
+    char *request = NULL;
     client_request_t req;
 
     if (str)
@@ -42,4 +42,25 @@ client_request_t extract_request(char *str)
     }
 
     return -1;
+}
+
+char *extract_nickname(char *str)
+{
+    char *copy_str = NULL; 
+    char *ptr = NULL;
+    char *nickname = NULL;
+    char *delimiter = " ";
+
+    copy_str = (char *)malloc(sizeof(char) * (strlen(str) + 1));
+    strcpy(copy_str, str);
+
+    ptr = strtok(copy_str, delimiter);
+    ptr = strtok(NULL, " ");
+
+    nickname = (char *)malloc(sizeof(char) * (strlen(ptr) + 1));
+    strcpy(nickname, ptr);
+
+    free(copy_str);
+
+    return nickname;
 }

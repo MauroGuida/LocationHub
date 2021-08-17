@@ -34,6 +34,21 @@ void thread_args_destroy(thread_args_t *targs)
     }
 }
 
+void sign_up(server_t *server, char **nickname, char *str, int client_sockfd)
+{
+    *nickname = extract_nickname(str);
+    bool success = avl_insert(server->avl, *nickname, NULL, true);
+    if (success)
+    {
+        write(client_sockfd, "OK\n", 2);
+    }
+    else
+    {
+        free(*nickname);
+        *nickname = NULL;
+        write(client_sockfd, "ERR\n", 3);
+    }
+}
 
 void *handle_client(void *arg)
 {
@@ -45,6 +60,8 @@ void *handle_client(void *arg)
     char buf[BUF_SIZE] = {'\0'};
     int n = 0;
     client_request_t req;
+    char *nickname = NULL;
+
 
     targs = (thread_args_t *)arg;
     server = targs->server;
@@ -62,6 +79,8 @@ void *handle_client(void *arg)
         if (n == 0 || (n == 1 && errno == ECONNRESET))
         {
             log_print(server->logger, LOG_DISCONNECTION, client_ip_addr, client_port_num);
+            avl_remove(server->avl, nickname);
+            free(nickname);
             break;
         }
 
@@ -71,7 +90,16 @@ void *handle_client(void *arg)
             
             req = extract_request(buf);
 
-            // TODO
+            switch (req)
+            {
+            case SIGN_UP:
+                log_print(server->logger, LOG_SIGN_UP, client_ip_addr, client_port_num);
+                sign_up(server, &nickname, buf, client_sockfd);
+                break;
+            
+            default:
+                break;
+            }
         }
     }
 

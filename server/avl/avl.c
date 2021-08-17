@@ -71,6 +71,12 @@ void tree_free(node_t *root)
     }
 }
 
+int tree_size(node_t *root)
+{
+    if (!root) return 0;
+
+    return 1 + tree_size(root->left) + tree_size(root->right);
+}
 
 node_t *node_create(void)
 {
@@ -279,7 +285,7 @@ void avl_destroy(avl_t *avl)
     }
 }
 
-void avl_insert(avl_t *avl, char *nickname, client_location_t *client_location, bool is_private)
+bool avl_insert(avl_t *avl, char *nickname, client_location_t *client_location, bool is_private)
 {
     if (avl)
     {
@@ -292,10 +298,16 @@ void avl_insert(avl_t *avl, char *nickname, client_location_t *client_location, 
             new_node->is_private = is_private;
 
             pthread_mutex_lock(&avl->lock);
+            int prev_size = tree_size(avl->root);
             avl->root = node_insert(avl->root, new_node, avl->comp);
+            int next_size = tree_size(avl->root);
             pthread_mutex_unlock(&avl->lock);
+
+            return next_size > prev_size;
         }
     }
+
+    return false;
 }
 
 void avl_update(avl_t *avl, char *nickname, client_location_t *client_location, bool is_private)
