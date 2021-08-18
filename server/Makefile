@@ -3,7 +3,7 @@ CFLAGS = -Wall -O3
 MYSERVER = myserver
 
 $(MYSERVER): main.o server.o server_utils.o logger.o client.o avl.o
-	$(CC) $(CFLAGS) -pthread $^ -o $(MYSERVER)
+	$(CC) $(CFLAGS) -pthread $^ -o $(MYSERVER) -lm
 	@echo Server compiled successfully.
 
 main.o: main.c

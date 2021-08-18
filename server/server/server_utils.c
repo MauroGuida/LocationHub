@@ -8,6 +8,25 @@ static const char *client_request_strings[] =
     [SET_PRIVACY]   = "SET_PRIVACY"
 };
 
+double distance(double lat1, double lon1, double lat2, double lon2)
+{
+    double pi = 3.141592653589793;
+    int R = 6371; // Radius of the Earth in KM
+
+    double lat1_rad = lat1 * (pi / 180);
+    double lat2_rad = lat2 * (pi / 180);
+    double diff_lat = (lat2 - lat1) * (pi / 180);
+    double diff_lon = (lon2 - lon1) * (pi / 180);
+
+    double a = sin(diff_lat / 2) * sin(diff_lat / 2) + 
+               cos(lat1_rad) * cos(lat2_rad) * 
+               sin(diff_lon / 2) * sin(diff_lon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double d = R * c;
+
+    return d;
+}
+
 int get_request(char *string)
 {
     for (int i = 0; i < (sizeof(client_request_strings) / sizeof(client_request_strings[0])); i++)
@@ -117,4 +136,73 @@ bool extract_privacy(char *str)
     free(copy_str);
     
     return result;
+}
+
+void tree_func_apply(node_t *root, node_t *target, char *buf, void (*func)(node_t *, node_t *, char *))
+{
+    if (root)
+    {
+        tree_func_apply(root->left, target, buf, func);
+        func(root, target, buf);
+        tree_func_apply(root->right, target, buf, func);
+    }
+}
+
+void add_position(node_t *node, node_t *target, char *buf)
+{
+    if (node == target) return;
+
+    char *curr_position = NULL;
+
+    if (node && target && buf)
+    {
+        curr_position = (char *)malloc(sizeof(char) * 512);
+        if (curr_position)
+        {
+            curr_position[0] = '\0';
+            sprintf(curr_position, "%s %d %s [%f;%f;%s;%s;%s;%s;%s]@", node->nickname,
+                                                                     ((node->client_location && target->client_location) ? distance(target->client_location->latitude,
+                                                                                                                                    target->client_location->longitude,
+                                                                                                                                    node->client_location->latitude,
+                                                                                                                                    node->client_location->longitude) : 0.0),
+                                                                     ((node->is_private) ? "1" : "0"),
+                                                                     ((node->client_location) ? node->client_location->latitude : 0.0),
+                                                                     ((node->client_location) ? node->client_location->longitude : 0.0),
+                                                                     ((node->client_location) ? node->client_location->address_line : "null"),
+                                                                     ((node->client_location) ? node->client_location->locality : "null"),
+                                                                     ((node->client_location) ? node->client_location->postal_code : "null"),
+                                                                     ((node->client_location) ? node->client_location->country_name : "null"),
+                                                                     ((node->client_location) ? node->client_location->country_code : "null")); 
+            strcat(buf, curr_position);
+        }
+        free(curr_position);
+    }
+}
+
+char *avl_serialize(avl_t *avl, char *nickname)
+{
+    char *buf = NULL;
+    node_t *target = NULL;
+
+    if (avl)
+    {
+        pthread_mutex_lock(&avl->lock);
+        buf = (char *)malloc(sizeof(char) * 8192);
+        if (buf)
+        {
+            buf[0] = '\0';
+            strcat(buf, "{");
+            
+            target = node_find(avl->root, avl->comp, nickname);
+            if (target)
+            {
+                tree_func_apply(avl->root, target, buf, add_position);
+            }
+
+            strcat(buf, "}\n");
+        }
+        pthread_mutex_unlock(&avl->lock);
+    }
+
+    return buf;
 }

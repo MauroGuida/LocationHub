@@ -52,7 +52,16 @@ void sign_up(server_t *server, char **nickname, char *str, int client_sockfd)
 
 void send_locations_to_client(server_t *server, char *nickname, int client_sockfd)
 {
-    // TODO 
+    char *buf = avl_serialize(server->avl, nickname);
+    if (buf)
+    {
+        write(client_sockfd, buf, strlen(buf) - 1);
+    }
+    else
+    {
+        write(client_sockfd, "ERR\n", 2);
+    }
+    free(buf);
 }
 
 void set_client_location(server_t *server, char *nickname, char *str, int client_sockfd)
@@ -81,7 +90,6 @@ void *handle_client(void *arg)
     int n = 0;
     client_request_t req;
     char *nickname = NULL;
-
 
     targs = (thread_args_t *)arg;
     server = targs->server;

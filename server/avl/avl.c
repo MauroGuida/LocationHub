@@ -180,7 +180,7 @@ node_t *node_remove(node_t *root, char *key, comparator comp)
             {
                 *root = *tmp;
             }
-            free(tmp);
+            node_destroy(tmp);
         }
         else
         {
