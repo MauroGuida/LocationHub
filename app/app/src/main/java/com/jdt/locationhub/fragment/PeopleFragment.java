@@ -3,6 +3,7 @@ package com.jdt.locationhub.fragment;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,11 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import com.jdt.locationhub.R;
 import com.jdt.locationhub.adapter.UserAdapter;
+import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.viewmodel.MainViewModel;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,7 +26,9 @@ import com.jdt.locationhub.viewmodel.MainViewModel;
  */
 public class PeopleFragment extends Fragment {
     private MainViewModel mainViewModel;
+
     private RecyclerView userRecyclerV;
+    private UserAdapter userRVAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -52,15 +57,22 @@ public class PeopleFragment extends Fragment {
 
         userRecyclerV = v.findViewById(R.id.user_RecyclerView);
 
-        //Initializing the adapter class and passing data to it
-        UserAdapter userAdapter = new UserAdapter(requireContext(), mainViewModel.getAllUsersPosition().getValue());
-        //Setting a layout manager for the recycler view
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false);
+        mainViewModel.getAllUsersPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
+                userRVAdapter.notifyDataSetChanged());
 
-        //Setting layoutmanager and adapter to recycler view
-        userRecyclerV.setLayoutManager(linearLayoutManager);
-        userRecyclerV.setAdapter(userAdapter);
+        initRecyclerView();
 
         return v;
     }
+
+    private void initRecyclerView() {
+        //Setting a layout manager for the recycler view
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false);
+        userRecyclerV.setLayoutManager(linearLayoutManager);
+
+        //Initializing the adapter class and passing data to it
+        userRVAdapter = new UserAdapter(requireContext(), mainViewModel.getAllUsersPosition().getValue());
+        userRecyclerV.setAdapter(userRVAdapter);
+    }
+
 }

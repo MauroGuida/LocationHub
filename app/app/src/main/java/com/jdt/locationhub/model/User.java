@@ -1,5 +1,7 @@
 package com.jdt.locationhub.model;
 
+import androidx.annotation.Nullable;
+
 public class User {
     private final String username;
     private Position position;
@@ -23,6 +25,20 @@ public class User {
 
     public void setPosition(Position position) {
         this.position = position;
+    }
+
+    @Override
+    public final boolean equals(@Nullable Object obj) {
+        if (!(obj instanceof User)) return false;
+
+        User u = (User) obj;
+
+        return username.equals(u.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return username.hashCode();
     }
 }
 
