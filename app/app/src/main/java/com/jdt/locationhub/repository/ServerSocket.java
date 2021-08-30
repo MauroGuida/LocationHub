@@ -71,8 +71,13 @@ public class ServerSocket {
 
     //TODO Update clients informations from AWS
     public void updateMutableUserDataset() {
-        userSet.add(new User("Davide",
-                new Position.Builder().latitude(15).latitude(16).build()));
+        User u = new User("Davide",
+                new Position.Builder().latitude(15).latitude(16).build());
+
+        if (userSet.contains(u))
+            userSet.get(userSet.indexOf(u)).setPosition(u.getPosition());
+        else
+            userSet.add(u);
     }
 
     public List<User> getAllConnectedUsers() {

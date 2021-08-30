@@ -9,4 +9,7 @@
     <string name="username">Username</string>
     <string name="login">Login</string>
     <string name="address">Address</string>
+    
+    <string name="locationPermissionNotGranted">L\'app non ha il permesso di accedere alla posizione del telefono!</string>
+    <string name="usernameNotValid">L\'username inserito è già in uso</string>
 </resources>

@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.jdt.locationhub.viewmodel.LoginViewModel;
 
@@ -41,7 +42,10 @@ public class LoginActivity extends AppCompatActivity {
                 Intent i = new Intent(this, MainActivity.class);
                 i.putExtra("USERNAME", usernameEditT.getText().toString());
                 startActivity(i);
-            }
+            } else if (!locationPermissionGranted)
+                Toast.makeText(this, getResources().getString(R.string.locationPermissionNotGranted), Toast.LENGTH_LONG).show();
+            else
+                usernameEditT.setError(getResources().getString(R.string.usernameNotValid));
         });
     }
 
