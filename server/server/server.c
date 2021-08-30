@@ -1,6 +1,6 @@
 #include "./server.h"
 
-#define BUF_SIZE 256
+#define BUF_SIZE 512
 
 struct thread_args_t
 {
@@ -34,6 +34,50 @@ void thread_args_destroy(thread_args_t *targs)
     }
 }
 
+void sign_up(server_t *server, char **nickname, char *str, int client_sockfd)
+{
+    *nickname = extract_nickname(str);
+    bool success = avl_insert(server->avl, *nickname);
+    if (success)
+    {
+        write(client_sockfd, "OK\n", 2);
+    }
+    else
+    {
+        free(*nickname);
+        *nickname = NULL;
+        write(client_sockfd, "ERR\n", 3);
+    }
+}
+
+void send_locations_to_client(server_t *server, char *nickname, int client_sockfd)
+{
+    char *buf = avl_serialize(server->avl, nickname);
+    if (buf)
+    {
+        write(client_sockfd, buf, strlen(buf) - 1);
+    }
+    else
+    {
+        write(client_sockfd, "ERR\n", 2);
+    }
+    free(buf);
+}
+
+void set_client_location(server_t *server, char *nickname, char *str, int client_sockfd)
+{
+    client_location_t *client_location = extract_client_location(str);
+    avl_update_location(server->avl, nickname, client_location);
+    client_location_destroy(client_location);
+    write(client_sockfd, "OK\n", 2);
+}
+
+void set_client_privacy(server_t *server, char *nickname, char *str, int client_sockfd)
+{
+    bool privacy = extract_privacy(str);
+    avl_update_privacy(server->avl, nickname, privacy);
+    write(client_sockfd, "OK\n", 2);
+}
 
 void *handle_client(void *arg)
 {
@@ -45,6 +89,7 @@ void *handle_client(void *arg)
     char buf[BUF_SIZE] = {'\0'};
     int n = 0;
     client_request_t req;
+    char *nickname = NULL;
 
     targs = (thread_args_t *)arg;
     server = targs->server;
@@ -62,6 +107,8 @@ void *handle_client(void *arg)
         if (n == 0 || (n == 1 && errno == ECONNRESET))
         {
             log_print(server->logger, LOG_DISCONNECTION, client_ip_addr, client_port_num);
+            avl_remove(server->avl, nickname);
+            free(nickname);
             break;
         }
 
@@ -71,7 +118,31 @@ void *handle_client(void *arg)
             
             req = extract_request(buf);
 
-            // TODO
+            switch (req)
+            {
+            case SIGN_UP:
+                log_print(server->logger, LOG_SIGN_UP, client_ip_addr, client_port_num);
+                sign_up(server, &nickname, buf, client_sockfd);
+                break;
+            
+            case GET_LOCATIONS:
+                log_print(server->logger, LOG_GET_LOCATIONS, client_ip_addr, client_port_num);
+                send_locations_to_client(server, nickname, client_sockfd);
+                break;
+
+            case SEND_LOCATION:
+                log_print(server->logger, LOG_SEND_LOCATION, client_ip_addr, client_port_num);
+                set_client_location(server, nickname, buf, client_sockfd);
+                break;
+            
+            case SET_PRIVACY:
+                log_print(server->logger, LOG_SET_PRIVACY, client_ip_addr, client_port_num);
+                set_client_privacy(server, nickname, buf, client_sockfd);
+                break;
+
+            default:
+                break;
+            }
         }
     }
 

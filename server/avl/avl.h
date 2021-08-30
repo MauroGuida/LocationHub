@@ -38,8 +38,9 @@ node_t *node_find(node_t *, comparator, char *);
 
 avl_t *avl_create(void);
 void avl_destroy(avl_t *);
-void avl_insert(avl_t *, char *, client_location_t *, bool);
-void avl_update(avl_t *, char *, client_location_t *, bool);
+bool avl_insert(avl_t *, char *);
+void avl_update_location(avl_t *, char *, client_location_t *);
+void avl_update_privacy(avl_t *, char *, bool);
 void avl_remove(avl_t *, char *);
 
 #endif // __AVL_H__
