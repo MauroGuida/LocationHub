@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = PeopleFragment.newInstance();
                     break;
                 case R.id.nav_settings:
-                    selectedFragment = SettingsFragment.newInstance(null, null);
+                    selectedFragment = SettingsFragment.newInstance();
             }
 
             if (selectedFragment != null) {

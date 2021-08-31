@@ -17,9 +17,11 @@ import java.util.List;
 public class MainViewModel extends ViewModel {
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     private final MutableLiveData<List<User>> connectedUsers = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isPrivacyEnabled = new MutableLiveData<>();
 
     public void init(String username) {
         currentUser.setValue(new User(username));
+        isPrivacyEnabled.setValue(false);
     }
 
     public void updateUsersPosition() {
@@ -36,18 +38,27 @@ public class MainViewModel extends ViewModel {
     }
 
     public void sendClientPosition(Address address) {
-        currentUser.setValue(new User(currentUser.getValue().getUsername(), new Position.Builder()
-                .latitude(address.getLatitude())
-                .longitude(address.getLongitude())
-                .addressLine(address.getAddressLine(0))
-                .locality(address.getLocality())
-                .postalCode(address.getPostalCode())
-                .countryName(address.getCountryName())
-                .countryCode(address.getCountryCode())
-                .build()));
+        if (!isPrivacyEnabled.getValue())
+            currentUser.setValue(new User(currentUser.getValue().getUsername(), new Position.Builder()
+                    .latitude(address.getLatitude())
+                    .longitude(address.getLongitude())
+                    .addressLine(address.getAddressLine(0))
+                    .locality(address.getLocality())
+                    .postalCode(address.getPostalCode())
+                    .countryName(address.getCountryName())
+                    .countryCode(address.getCountryCode())
+                    .build()));
     }
 
     public LiveData<User> getCurrentUser() {
         return currentUser;
+    }
+
+    public void setPrivacy(boolean b) {
+        isPrivacyEnabled.setValue(b);
+    }
+
+    public boolean getPrivacyStatus() {
+        return isPrivacyEnabled.getValue();
     }
 }
