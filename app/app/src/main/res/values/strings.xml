@@ -1,9 +1,6 @@
 <resources>
     <string name="app_name">LocationHub</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <string name="MeOnTheMap">IO</string>
     <string name="LatLon">Lat: %1s Lon: %2s</string>
     <string name="username">Username</string>
@@ -11,5 +8,10 @@
     <string name="address">Address</string>
     
     <string name="locationPermissionNotGranted">L\'app non ha il permesso di accedere alla posizione del telefono!</string>
-    <string name="usernameNotValid">L\'username inserito è già in uso</string>
+    <string name="usernameAlreadyInUse">L\'username inserito è già in uso</string>
+    <string name="usernameNotValid">L\'username inserito non è valido</string>
+    <string name="usernameHelperText">Min 2 caratteri e nessun carattere speciale</string>
+    <string name="position_privacy">Condividi la tua posizione</string>
+    <string name="privacy">Privacy</string>
+
 </resources>

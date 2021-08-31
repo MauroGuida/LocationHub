@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp">
@@ -8,25 +9,41 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/username_TextV_UserCardView"
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="username"/>
+            android:src="@drawable/ic_baseline_person_pin_64"
+            app:tint="?colorPrimary"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="UserImage" />
 
-        <TextView
-            android:id="@+id/latlong_TextV_UserCardView"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/LatLon"/>
+            android:layout_gravity="center"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/addressLine_TextV_UserCardView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="address"/>
+            <TextView
+                android:id="@+id/username_TextV_UserCardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/username"/>
+
+            <TextView
+                android:id="@+id/latlong_TextV_UserCardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/LatLon"/>
+
+            <TextView
+                android:id="@+id/addressLine_TextV_UserCardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="address"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

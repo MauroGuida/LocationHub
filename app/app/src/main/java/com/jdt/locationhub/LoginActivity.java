@@ -10,9 +10,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
+import com.jdt.locationhub.exception.UsernameAlreadyInUseException;
+import com.jdt.locationhub.exception.UsernameNotValidException;
+import com.jdt.locationhub.tool.DoneOnEditorActionListener;
 import com.jdt.locationhub.viewmodel.LoginViewModel;
 
 public class LoginActivity extends AppCompatActivity {
@@ -21,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
 
-    private EditText usernameEditT;
+    private TextInputLayout usernameEditT;
     private Button loginButton;
 
     @Override
@@ -31,22 +34,29 @@ public class LoginActivity extends AppCompatActivity {
 
         loginViewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
 
-        usernameEditT = findViewById(R.id.username_EditT_LoginActivity);
+        usernameEditT = findViewById(R.id.username_TextInputL_LoginActivity);
         loginButton = findViewById(R.id.login_Button_LoginActivity);
 
         //Check and Request Location permission
         getLocationPermission();
 
-        loginButton.setOnClickListener(l -> {
-            if (locationPermissionGranted && loginViewModel.login(usernameEditT.getText().toString())) {
+        loginButton.setOnClickListener(l -> login());
+        usernameEditT.getEditText().setOnEditorActionListener(new DoneOnEditorActionListener());
+    }
+
+    private void login() {
+        try {
+            if (locationPermissionGranted && loginViewModel.login(usernameEditT.getEditText().getText().toString())) {
                 Intent i = new Intent(this, MainActivity.class);
-                i.putExtra("USERNAME", usernameEditT.getText().toString());
+                i.putExtra("USERNAME", usernameEditT.getEditText().getText().toString());
                 startActivity(i);
             } else if (!locationPermissionGranted)
                 Toast.makeText(this, getResources().getString(R.string.locationPermissionNotGranted), Toast.LENGTH_LONG).show();
-            else
-                usernameEditT.setError(getResources().getString(R.string.usernameNotValid));
-        });
+        } catch (UsernameNotValidException e) {
+            usernameEditT.setError(getResources().getString(R.string.usernameNotValid));
+        } catch (UsernameAlreadyInUseException e) {
+            usernameEditT.setError(getResources().getString(R.string.usernameAlreadyInUse));
+        }
     }
 
     /*
