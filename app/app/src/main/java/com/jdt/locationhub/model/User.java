@@ -27,6 +27,10 @@ public class User {
         this.position = position;
     }
 
+    public String serialize() {
+        return username + " " + position.serialize();
+    }
+
     @Override
     public final boolean equals(@Nullable Object obj) {
         if (!(obj instanceof User)) return false;
