@@ -40,13 +40,15 @@ void sign_up(server_t *server, char **nickname, char *str, int client_sockfd)
     bool success = avl_insert(server->avl, *nickname);
     if (success)
     {
-        write(client_sockfd, "OK\n", 2);
+        char msg[] = "OK\n";
+        write(client_sockfd, msg, strlen(msg));
     }
     else
     {
         free(*nickname);
         *nickname = NULL;
-        write(client_sockfd, "ERR\n", 3);
+        char msg[] = "ERR\n";
+        write(client_sockfd, msg, strlen(msg));
     }
 }
 
@@ -55,11 +57,12 @@ void send_locations_to_client(server_t *server, char *nickname, int client_sockf
     char *buf = avl_serialize(server->avl, nickname);
     if (buf)
     {
-        write(client_sockfd, buf, strlen(buf) - 1);
+        write(client_sockfd, buf, strlen(buf) + 1);
     }
     else
     {
-        write(client_sockfd, "ERR\n", 2);
+        char msg[] = "ERR\n";
+        write(client_sockfd, msg, strlen(msg));
     }
     free(buf);
 }
@@ -69,14 +72,16 @@ void set_client_location(server_t *server, char *nickname, char *str, int client
     client_location_t *client_location = extract_client_location(str);
     avl_update_location(server->avl, nickname, client_location);
     client_location_destroy(client_location);
-    write(client_sockfd, "OK\n", 2);
+    char msg[] = "OK\n";
+    write(client_sockfd, msg, strlen(msg));
 }
 
 void set_client_privacy(server_t *server, char *nickname, char *str, int client_sockfd)
 {
     bool privacy = extract_privacy(str);
     avl_update_privacy(server->avl, nickname, privacy);
-    write(client_sockfd, "OK\n", 2);
+    char msg[] = "OK\n";
+    write(client_sockfd, msg, strlen(msg));
 }
 
 void *handle_client(void *arg)

@@ -242,7 +242,7 @@ node_t *node_remove(node_t *root, char *key, comparator comp)
 
 node_t *node_find(node_t *root, comparator comp, char *key)
 {
-    if (root)
+    if (root && key)
     {
         if (comp(key, root->nickname) == 0)
         {
@@ -322,7 +322,7 @@ void avl_update_location(avl_t *avl, char *nickname, client_location_t *client_l
 {
     node_t *target = NULL;
 
-    if (avl)
+    if (avl && nickname)
     {
         pthread_mutex_lock(&avl->lock);
 
