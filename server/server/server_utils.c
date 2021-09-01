@@ -27,11 +27,11 @@ double distance(double lat1, double lon1, double lat2, double lon2)
     return d;
 }
 
-int get_request(char *string)
+int get_request(char *str)
 {
     for (int i = 0; i < (sizeof(client_request_strings) / sizeof(client_request_strings[0])); i++)
     {
-        if (strcmp(client_request_strings[i], string) == 0)
+        if (strcmp(client_request_strings[i], str) == 0)
         {
             return i;
         }
@@ -160,12 +160,12 @@ void add_position(node_t *node, node_t *target, char *buf)
         if (curr_position)
         {
             curr_position[0] = '\0';
-            sprintf(curr_position, "%s %d %s [%f;%f;%s;%s;%s;%s;%s]@", node->nickname,
+            sprintf(curr_position, "%s %f %d [%f;%f;%s;%s;%s;%s;%s]@", node->nickname,
                                                                      ((node->client_location && target->client_location) ? distance(target->client_location->latitude,
                                                                                                                                     target->client_location->longitude,
                                                                                                                                     node->client_location->latitude,
                                                                                                                                     node->client_location->longitude) : 0.0),
-                                                                     ((node->is_private) ? "1" : "0"),
+                                                                     (int)node->is_private,
                                                                      ((node->client_location) ? node->client_location->latitude : 0.0),
                                                                      ((node->client_location) ? node->client_location->longitude : 0.0),
                                                                      ((node->client_location) ? node->client_location->address_line : "null"),
@@ -187,6 +187,7 @@ char *avl_serialize(avl_t *avl, char *nickname)
     if (avl)
     {
         pthread_mutex_lock(&avl->lock);
+
         buf = (char *)malloc(sizeof(char) * 8192);
         if (buf)
         {
@@ -201,6 +202,7 @@ char *avl_serialize(avl_t *avl, char *nickname)
 
             strcat(buf, "}\n");
         }
+        
         pthread_mutex_unlock(&avl->lock);
     }
 
