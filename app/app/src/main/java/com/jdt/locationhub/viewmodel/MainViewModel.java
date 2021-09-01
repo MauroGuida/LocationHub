@@ -20,6 +20,7 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<Position> userPosition = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isPrivacyEnabled = new MutableLiveData<>();
 
+    private long clientsRange = 100;
     private final MutableLiveData<List<User>> connectedUsers = new MutableLiveData<>();
 
     //-----------------------------------------------------------------------------------\\
@@ -35,11 +36,16 @@ public class MainViewModel extends ViewModel {
     //-----------------------------------------------------------------------------------\\
 
     public void updateUsersPosition() {
-        connectedUsers.setValue(serverSocket.getAllConnectedUsers());
+        connectedUsers.setValue(serverSocket.getAllConnectedUsers(clientsRange));
     }
 
     public LiveData<? extends List<User>> getAllUsersPosition() {
         return connectedUsers;
+    }
+
+    public void setClientsRange(long clientsRange) {
+        this.clientsRange = clientsRange;
+        updateUsersPosition();
     }
 
     //-----------------------------------------------------------------------------------\\

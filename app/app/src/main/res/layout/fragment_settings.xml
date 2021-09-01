@@ -17,13 +17,36 @@
         android:layout_marginStart="4dp"
         android:layout_gravity="start" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/privacy_Switch_FragmentSettings"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="@string/position_privacy"
-        android:layout_margin="8dp"
-        android:elevation="4dp"/>
+        android:orientation="vertical"
+        android:layout_margin="8dp">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/privacy_Switch_FragmentSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/position_privacy"
+            android:elevation="4dp"/>
+
+        <TextView
+            android:id="@+id/range_TextView_FragmentSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/clientRange"/>
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/range_Slider_FragmentSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+
+            android:valueFrom="100.0"
+            android:valueTo="10000.0"
+            android:stepSize="100.0"/>
+
+    </LinearLayout>
 
 </LinearLayout>

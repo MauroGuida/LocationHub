@@ -15,5 +15,6 @@
     <string name="abnormalError">Si è verificato un errore anomalo lato server, riprovare più tardi</string>
     <string name="position_privacy">Condividi la tua posizione</string>
     <string name="privacy">Privacy</string>
+    <string name="clientRange">Trova client nell\'arco di %.2f Km:</string>
 
 </resources>

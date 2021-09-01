@@ -1,11 +1,11 @@
 package com.jdt.locationhub.repository;
 
 import android.os.StrictMode;
-import android.util.Log;
 
 import com.jdt.locationhub.exception.UsernameAlreadyInUseException;
 import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
+import com.jdt.locationhub.tool.StringParser;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,7 +15,6 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Singleton Class
@@ -110,24 +109,27 @@ public class ServerSocket {
     }
 
     //TODO Update clients informations from AWS
-    private void updateUsersLocation() {
-        User u = new User("Davide",
-                new Position.Builder().latitude(15).latitude(16).build());
+    private void updateUsersLocation() throws IOException {
+        StringParser.usersParser(sendMessage("GET_LOCATIONS ")).forEach(u -> {
+            if (userSet.contains(u)) {
+                userSet.get(userSet.indexOf(u)).setPosition(u.getPosition());
+                userSet.get(userSet.indexOf(u)).setDistance(u.getDistance());
+            } else
+                userSet.add(u);
+        });
+    }
 
-        if (userSet.contains(u))
-            userSet.get(userSet.indexOf(u)).setPosition(u.getPosition());
-        else
-            userSet.add(u);
-
+    public List<User> getAllConnectedUsers(long range) {
         try {
-            Log.d("SERVERTEST", sendMessage("GET_LOCATIONS "));
+            updateUsersLocation();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
 
-    public List<User> getAllConnectedUsers() {
-        updateUsersLocation();
+        userSet.forEach(u -> {
+            if (u.getDistance() > range)
+                userSet.remove(u);
+        });
 
         return userSet;
     }
