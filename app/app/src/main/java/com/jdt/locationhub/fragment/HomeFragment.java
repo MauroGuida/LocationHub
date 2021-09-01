@@ -102,7 +102,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void initMap() {
-        //Create an Azure marker for client position
+        //Create an invisible Azure marker for client position
         thisClientPositionMarker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(0,0))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
