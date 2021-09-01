@@ -10,55 +10,71 @@ import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.repository.ServerSocket;
 
-import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainViewModel extends ViewModel {
-    private final MutableLiveData<User> currentUser = new MutableLiveData<>();
-    private final MutableLiveData<List<User>> connectedUsers = new MutableLiveData<>();
+    private ServerSocket serverSocket;
+
+    private String username;
+    private final MutableLiveData<Position> userPosition = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isPrivacyEnabled = new MutableLiveData<>();
 
+    private final MutableLiveData<List<User>> connectedUsers = new MutableLiveData<>();
+
+    //-----------------------------------------------------------------------------------\\
+
     public void init(String username) {
-        currentUser.setValue(new User(username));
-        isPrivacyEnabled.setValue(false);
+        this.username = username;
+        userPosition.setValue(new Position.Builder().build());
+        isPrivacyEnabled.setValue(true);
+
+        serverSocket = Objects.requireNonNull(ServerSocket.getServerSocket());
     }
 
+    //-----------------------------------------------------------------------------------\\
+
     public void updateUsersPosition() {
-        try {
-            ServerSocket serverSocket = ServerSocket.getServerSocket();
-            connectedUsers.setValue(serverSocket.getAllConnectedUsers());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        connectedUsers.setValue(serverSocket.getAllConnectedUsers());
     }
 
     public LiveData<? extends List<User>> getAllUsersPosition() {
         return connectedUsers;
     }
 
-    public void sendClientPosition(Address address) {
-        if (!isPrivacyEnabled.getValue())
-            currentUser.setValue(new User(currentUser.getValue().getUsername(), new Position.Builder()
-                    .latitude(address.getLatitude())
-                    .longitude(address.getLongitude())
-                    .addressLine(address.getAddressLine(0))
-                    .locality(address.getLocality())
-                    .postalCode(address.getPostalCode())
-                    .countryName(address.getCountryName())
-                    .countryCode(address.getCountryCode())
-                    .build()));
+    //-----------------------------------------------------------------------------------\\
+
+    public void updateClientPosition(Address address) {
+        Position position = new Position.Builder()
+                .latitude(address.getLatitude())
+                .longitude(address.getLongitude())
+                .addressLine(address.getAddressLine(0))
+                .locality(address.getLocality())
+                .postalCode(address.getPostalCode())
+                .countryName(address.getCountryName())
+                .countryCode(address.getCountryCode())
+                .build();
+
+        userPosition.setValue(position);
+        serverSocket.sendClientPosition(position);
     }
 
-    public LiveData<User> getCurrentUser() {
-        return currentUser;
+    public LiveData<Position> getUserPosition() {
+        return userPosition;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    //-----------------------------------------------------------------------------------\\
 
     public void setPrivacy(boolean b) {
         isPrivacyEnabled.setValue(b);
+        serverSocket.setUserPrivacy(b);
     }
 
     public boolean getPrivacyStatus() {
-        return isPrivacyEnabled.getValue();
+        return Objects.requireNonNull(isPrivacyEnabled.getValue());
     }
 }

@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             //Retrieve location information
             try {
                 Address address = new Geocoder(this).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
-                mainViewModel.sendClientPosition(address);
+                mainViewModel.updateClientPosition(address);
             } catch (IOException e) {
                 e.printStackTrace();
             }

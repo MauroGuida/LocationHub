@@ -28,6 +28,7 @@ import com.jdt.locationhub.viewmodel.MainViewModel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,20 +77,20 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         locationTextV = v.findViewById(R.id.location_TextV_FragmentHome);
         addressTextV = v.findViewById(R.id.address_TextV_FragmentHome);
 
-        mainViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            usernameTextV.setText(user.getUsername());
+        usernameTextV.setText(mainViewModel.getUsername());
 
+        mainViewModel.getUserPosition().observe(getViewLifecycleOwner(), position -> {
             //Updates location information on the screen if available
-            if (user.getPosition() != null && map != null && thisClientPositionMarker != null) {
-                locationTextV.setText(getResources().getString(R.string.LatLon, String.valueOf(user.getPosition().getLatitude()), String.valueOf(user.getPosition().getLongitude())));
-                addressTextV.setText(user.getPosition().getAddressLine());
+            if (position != null && map != null && thisClientPositionMarker != null) {
+                locationTextV.setText(getResources().getString(R.string.LatLon, String.valueOf(position.getLatitude()), String.valueOf(position.getLongitude())));
+                addressTextV.setText(position.getAddressLine());
 
-                //Refresh client position
-                thisClientPositionMarker.setPosition(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()));
+                //Refresh client position on the map
+                thisClientPositionMarker.setPosition(new LatLng(position.getLatitude(), position.getLongitude()));
                 if (!thisClientPositionMarker.isVisible()) {
                     thisClientPositionMarker.setVisible(true);
                     //Center the camera on the Client position
-                    map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude())));
+                    map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(position.getLatitude(), position.getLongitude())));
                 }
             }
         });
@@ -135,7 +136,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         if (map == null) return;
 
         if (clientsPositionMarkers.containsKey(name))
-            clientsPositionMarkers.get(name).setPosition(point);
+            Objects.requireNonNull(clientsPositionMarkers.get(name)).setPosition(point);
         else
             clientsPositionMarkers.put(name, map.addMarker(new MarkerOptions().position(point).title(name)));
 

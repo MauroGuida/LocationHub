@@ -18,6 +18,8 @@ import com.jdt.locationhub.exception.UsernameNotValidException;
 import com.jdt.locationhub.tool.DoneOnEditorActionListener;
 import com.jdt.locationhub.viewmodel.LoginViewModel;
 
+import java.io.IOException;
+
 public class LoginActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
     private boolean locationPermissionGranted = false;
@@ -52,10 +54,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(i);
             } else if (!locationPermissionGranted)
                 Toast.makeText(this, getResources().getString(R.string.locationPermissionNotGranted), Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(this, getResources().getString(R.string.abnormalError), Toast.LENGTH_LONG).show();
         } catch (UsernameNotValidException e) {
             usernameEditT.setError(getResources().getString(R.string.usernameNotValid));
         } catch (UsernameAlreadyInUseException e) {
             usernameEditT.setError(getResources().getString(R.string.usernameAlreadyInUse));
+        } catch (IOException e) {
+            Toast.makeText(this, getResources().getString(R.string.networkError), Toast.LENGTH_LONG).show();
         }
     }
 

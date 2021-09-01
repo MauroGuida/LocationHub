@@ -11,6 +11,8 @@
     <string name="usernameAlreadyInUse">L\'username inserito è già in uso</string>
     <string name="usernameNotValid">L\'username inserito non è valido</string>
     <string name="usernameHelperText">Min 2 caratteri e nessun carattere speciale</string>
+    <string name="networkError">Sono stati riscontrati problemi di rete, verifica la connessione e riprova</string>
+    <string name="abnormalError">Si è verificato un errore anomalo lato server, riprovare più tardi</string>
     <string name="position_privacy">Condividi la tua posizione</string>
     <string name="privacy">Privacy</string>
 

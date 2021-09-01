@@ -1,5 +1,6 @@
 package com.jdt.locationhub.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -50,6 +51,7 @@ public class PeopleFragment extends Fragment {
         mainViewModel = ViewModelProviders.of(requireActivity()).get(MainViewModel.class);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
