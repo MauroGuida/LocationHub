@@ -27,7 +27,7 @@ public class MainViewModel extends ViewModel {
 
     public void init(String username) {
         this.username = username;
-        userPosition.setValue(new Position.Builder().build());
+        userPosition.setValue(null);
         isPrivacyEnabled.setValue(true);
 
         serverSocket = Objects.requireNonNull(ServerSocket.getServerSocket());

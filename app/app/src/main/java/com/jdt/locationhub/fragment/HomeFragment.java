@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.jdt.locationhub.R;
+import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.viewmodel.MainViewModel;
 
@@ -79,21 +80,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         usernameTextV.setText(mainViewModel.getUsername());
 
-        mainViewModel.getUserPosition().observe(getViewLifecycleOwner(), position -> {
-            //Updates location information on the screen if available
-            if (position != null && map != null && thisClientPositionMarker != null) {
-                locationTextV.setText(getResources().getString(R.string.LatLon, String.valueOf(position.getLatitude()), String.valueOf(position.getLongitude())));
-                addressTextV.setText(position.getAddressLine());
-
-                //Refresh client position on the map
-                thisClientPositionMarker.setPosition(new LatLng(position.getLatitude(), position.getLongitude()));
-                if (!thisClientPositionMarker.isVisible()) {
-                    thisClientPositionMarker.setVisible(true);
-                    //Center the camera on the Client position
-                    map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(position.getLatitude(), position.getLongitude())));
-                }
-            }
-        });
+        mainViewModel.getUserPosition().observe(getViewLifecycleOwner(), this::updateUserPositionMarker);
 
         mapView.onCreate(null);
         mapView.getMapAsync(this);
@@ -111,10 +98,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
-        resetMap();
+        initMap();
     }
 
-    private void resetMap() {
+    private void initMap() {
         //Create an Azure marker for client position
         thisClientPositionMarker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(0,0))
@@ -122,13 +109,32 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 .title(getResources().getString(R.string.MeOnTheMap))
                 .visible(false));
 
-        //Creates a Map that contains a marker for each connected client
+        //Fetch the last known position, if available, and set the Client Azure marker
+        updateUserPositionMarker(mainViewModel.getUserPosition().getValue());
+
+        //Create a Map that contains a marker for each connected client
         clientsPositionMarkers = new HashMap<>();
 
         //Place a Red marker for each client connected to the server
         mainViewModel.getAllUsersPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
                 users.forEach(user ->
                         setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername())));
+    }
+
+    private void updateUserPositionMarker(Position position) {
+        //Updates location information on the screen if available
+        if (position != null && map != null && thisClientPositionMarker != null) {
+            locationTextV.setText(getResources().getString(R.string.LatLon, String.valueOf(position.getLatitude()), String.valueOf(position.getLongitude())));
+            addressTextV.setText(position.getAddressLine());
+
+            //Refresh client position on the map
+            thisClientPositionMarker.setPosition(new LatLng(position.getLatitude(), position.getLongitude()));
+            if (!thisClientPositionMarker.isVisible()) {
+                thisClientPositionMarker.setVisible(true);
+                //Center the camera on the Client position
+                map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(position.getLatitude(), position.getLongitude())));
+            }
+        }
     }
 
     //Set an user Marker on the map or replace his position if already exists
