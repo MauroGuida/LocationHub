@@ -52,7 +52,7 @@ public class SettingsFragment extends Fragment {
 
         privacySwitch = v.findViewById(R.id.privacy_Switch_FragmentSettings);
 
-        privacySwitch.setChecked(mainViewModel.getPrivacyStatus());
+        privacySwitch.setChecked(!mainViewModel.getPrivacyStatus());
 
         privacySwitch.setOnCheckedChangeListener((compoundButton, b) -> mainViewModel.setPrivacy(b));
 
