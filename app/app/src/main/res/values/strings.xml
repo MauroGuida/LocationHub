@@ -17,4 +17,7 @@
     <string name="privacy">Privacy</string>
     <string name="clientRange">Trova client nell\'arco di %.2f Km:</string>
 
+    <string name="location_unknown">Location Unknown</string>
+    <string name="address_unknown">Address Unknown</string>
+
 </resources>
