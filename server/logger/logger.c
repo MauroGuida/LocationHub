@@ -4,10 +4,10 @@ static const char *log_strings[] =
 {
     [LOG_NEW_CONNECTION] = "************   NEW CONNECTION   ***********",
     [LOG_DISCONNECTION]  = "************   DISCONNECTED   ***********",
-    [LOG_SIGN_UP]        = "Client successfully registered",
-    [LOG_GET_LOCATIONS]  = "Client requested locations",
-    [LOG_SEND_LOCATION]  = "Client sent his location",
-    [LOG_SET_PRIVACY]    = "Client change privacy settings"
+    [LOG_SIGN_UP]        = "Client requested registration",
+    [LOG_GET_LOCATIONS]  = "Client requested all locations",
+    [LOG_SEND_LOCATION]  = "Client requested to sent his location",
+    [LOG_SET_PRIVACY]    = "Client requested change in privacy settings"
 };
 
 logger_t *logger_create(void)
@@ -59,10 +59,15 @@ void log_print(logger_t *logger, log_type_t log_type, char *ip_addr, int port_nu
         time(&rawtime);
         timeinfo = localtime(&rawtime);
 
-        sprintf(log, "%02d-%02d-%d  %02d:%02d:%02d  %s:%d  %s",
-            timeinfo->tm_mday, timeinfo->tm_mon + 1, timeinfo->tm_year + 1900, 
-            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec,
-            ip_addr, port_num, log_strings[log_type]);
+        sprintf(log, "%02d-%02d-%d  %02d:%02d:%02d  %s:%d  %s", timeinfo->tm_mday, 
+                                                                timeinfo->tm_mon + 1, 
+                                                                timeinfo->tm_year + 1900, 
+                                                                timeinfo->tm_hour, 
+                                                                timeinfo->tm_min, 
+                                                                timeinfo->tm_sec,
+                                                                ip_addr, 
+                                                                port_num, 
+                                                                log_strings[log_type]);
 
         printf("%s\n", log);                        
         fprintf(logger->logfile, "%s\n", log);      

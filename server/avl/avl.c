@@ -71,13 +71,6 @@ void tree_free(node_t *root)
     }
 }
 
-int tree_size(node_t *root)
-{
-    if (!root) return 0;
-
-    return 1 + tree_size(root->left) + tree_size(root->right);
-}
-
 node_t *node_create(void)
 {
     node_t *node = (node_t *)malloc(sizeof(node_t));
@@ -290,28 +283,25 @@ void avl_destroy(avl_t *avl)
 
 bool avl_insert(avl_t *avl, char *nickname)
 {
-    if (avl)
+    if (avl && nickname)
     {
-        node_t *new_node = node_create();
+        node_t *target = node_find(avl->root, avl->comp, nickname);
+        if (!target)
+        {
+            node_t *new_node = node_create();
 
-        if (new_node)
-        { 
-            new_node->nickname = strdup(nickname);
-            new_node->client_location = NULL;
-            new_node->is_private = true;
+            if (new_node)
+            { 
+                new_node->nickname = strdup(nickname);
+                new_node->client_location = NULL;
+                new_node->is_private = true;
 
-            pthread_mutex_lock(&avl->lock);
-            int before_size = tree_size(avl->root);
-            avl->root = node_insert(avl->root, new_node, avl->comp);
-            int after_size = tree_size(avl->root);
-            pthread_mutex_unlock(&avl->lock);
-
-            if (!(after_size > before_size)) 
-            {
-                node_destroy(new_node);
+                pthread_mutex_lock(&avl->lock);
+                avl->root = node_insert(avl->root, new_node, avl->comp);
+                pthread_mutex_unlock(&avl->lock);
+                
+                return true;
             }
-            
-            return after_size > before_size;
         }
     }
 

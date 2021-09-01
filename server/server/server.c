@@ -57,7 +57,7 @@ void send_locations_to_client(server_t *server, char *nickname, int client_sockf
     char *buf = avl_serialize(server->avl, nickname);
     if (buf)
     {
-        write(client_sockfd, buf, strlen(buf) + 1);
+        write(client_sockfd, buf, strlen(buf));
     }
     else
     {
@@ -72,6 +72,7 @@ void set_client_location(server_t *server, char *nickname, char *str, int client
     client_location_t *client_location = extract_client_location(str);
     avl_update_location(server->avl, nickname, client_location);
     client_location_destroy(client_location);
+    
     char msg[] = "OK\n";
     write(client_sockfd, msg, strlen(msg));
 }
@@ -80,6 +81,7 @@ void set_client_privacy(server_t *server, char *nickname, char *str, int client_
 {
     bool privacy = extract_privacy(str);
     avl_update_privacy(server->avl, nickname, privacy);
+    
     char msg[] = "OK\n";
     write(client_sockfd, msg, strlen(msg));
 }

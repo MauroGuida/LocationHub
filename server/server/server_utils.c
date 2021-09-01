@@ -129,8 +129,7 @@ bool extract_privacy(char *str)
 
     ptr = strtok(copy_str, delimiter);
     ptr = strtok(NULL, " ");
-    ptr = strtok(NULL, " ");
-
+    
     result = (strcmp(ptr, "1") == 0);
     
     free(copy_str);
@@ -192,7 +191,7 @@ char *avl_serialize(avl_t *avl, char *nickname)
         if (buf)
         {
             buf[0] = '\0';
-            strcat(buf, "{");
+            strcat(buf, "OK - {");
             
             target = node_find(avl->root, avl->comp, nickname);
             if (target)
