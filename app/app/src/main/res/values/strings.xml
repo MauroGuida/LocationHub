@@ -6,7 +6,11 @@
     <string name="username">Username</string>
     <string name="login">Login</string>
     <string name="address">Address</string>
-    
+
+    <string name="gps_network_not_enabled">Rete GPS non abilitata</string>
+    <string name="open_location_settings">Abilita GPS</string>
+    <string name="cancel">Annulla</string>
+
     <string name="locationPermissionNotGranted">L\'app non ha il permesso di accedere alla posizione del telefono!</string>
     <string name="usernameAlreadyInUse">L\'username inserito è già in uso</string>
     <string name="usernameNotValid">L\'username inserito non è valido</string>

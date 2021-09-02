@@ -1,15 +1,20 @@
 package com.jdt.locationhub;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -28,12 +33,18 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private MainViewModel mainViewModel;
 
-    Handler locationHandler = new Handler();
-    Runnable locationFetcher = new Runnable() {
+    private AlertDialog gpsNotEnabled;
+
+    private final Handler locationHandler = new Handler();
+    private final Runnable locationFetcher = new Runnable() {
         @Override
         public void run() {
-            fetchClientLocation(); //Updates Client this position
-            mainViewModel.updateUsersPosition(); //Updates Users position
+            if (isLocationEnabled()) {
+                fetchClientLocation(); //Updates Client this position
+                mainViewModel.updateUsersPosition(); //Updates Users position
+            } else
+                showGpsNotEnabledDialog();
+
             locationHandler.postDelayed(this, 10000); //Repeat this process every 10 Seconds
         }
     };
@@ -81,6 +92,17 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+
+        //Creates a GPS not enabled dialog
+        gpsNotEnabled = new AlertDialog.Builder(this)
+                .setMessage(getResources().getString(R.string.gps_network_not_enabled))
+                .setPositiveButton(getResources().getString(R.string.open_location_settings), (dialogInterface, i) -> {
+                    if (!isLocationEnabled())
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                })
+                .setNegativeButton(getResources().getString(R.string.cancel), (dialogInterface, i) ->
+                        finishAffinity())
+                .create();
     }
 
     @SuppressLint("MissingPermission")
@@ -105,5 +127,26 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+    }
+
+    private boolean isLocationEnabled() {
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ignored) {}
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ignored) {}
+
+        return gps_enabled || network_enabled;
+    }
+
+    private void showGpsNotEnabledDialog() {
+        if (!gpsNotEnabled.isShowing())
+            gpsNotEnabled.show();
     }
 }
