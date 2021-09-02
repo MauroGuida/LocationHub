@@ -12,14 +12,13 @@ import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.repository.ServerSocket;
 
 import java.util.List;
-import java.util.Objects;
 
 public class MainViewModel extends ViewModel {
     private ServerSocket serverSocket;
 
     private String username;
     private final MutableLiveData<Position> thisClientPosition = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isPrivacyEnabled = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> PrivacyEnabled = new MutableLiveData<>();
 
     private final MutableLiveData<Float> clientsDiscoveryRange = new MutableLiveData<>();
     private final MutableLiveData<List<User>> connectedClients = new MutableLiveData<>();
@@ -29,7 +28,7 @@ public class MainViewModel extends ViewModel {
     public void init(String username) {
         this.username = username;
         thisClientPosition.setValue(null);
-        isPrivacyEnabled.setValue(true);
+        PrivacyEnabled.setValue(true);
         clientsDiscoveryRange.setValue(500.0F);
 
         try {
@@ -88,12 +87,12 @@ public class MainViewModel extends ViewModel {
 
     //-----------------------------------------------------------------------------------\\
 
-    public void setPrivacy(boolean b) {
-        isPrivacyEnabled.setValue(b);
+    public void setPrivacyEnabled(boolean b) {
+        PrivacyEnabled.setValue(b);
         serverSocket.setUserPrivacy(b);
     }
 
-    public boolean getPrivacyStatus() {
-        return Objects.requireNonNull(isPrivacyEnabled.getValue());
+    public LiveData<Boolean> isPrivacyEnabled() {
+        return PrivacyEnabled;
     }
 }

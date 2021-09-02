@@ -24,7 +24,7 @@ import com.jdt.locationhub.viewmodel.MainViewModel;
 public class SettingsFragment extends Fragment {
     private MainViewModel mainViewModel;
 
-    private SwitchMaterial privacySwitch;
+    private SwitchMaterial sharePositionSwitch;
     private TextView rangeTextV;
     private Slider rangeSlider;
 
@@ -54,12 +54,13 @@ public class SettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        privacySwitch = v.findViewById(R.id.privacy_Switch_FragmentSettings);
+        sharePositionSwitch = v.findViewById(R.id.privacy_Switch_FragmentSettings);
         rangeTextV = v.findViewById(R.id.range_TextView_FragmentSettings);
         rangeSlider = v.findViewById(R.id.range_Slider_FragmentSettings);
 
-        privacySwitch.setChecked(!mainViewModel.getPrivacyStatus());
-        privacySwitch.setOnCheckedChangeListener((compoundButton, b) -> mainViewModel.setPrivacy(b));
+        sharePositionSwitch.setChecked(!mainViewModel.isPrivacyEnabled().getValue());
+        sharePositionSwitch.setOnCheckedChangeListener((compoundButton, b) -> mainViewModel.setPrivacyEnabled(!b));
+        mainViewModel.isPrivacyEnabled().observe(getViewLifecycleOwner(), p -> sharePositionSwitch.setChecked(!p));
 
         mainViewModel.getClientsDiscoveryRange().observe(getViewLifecycleOwner(), r -> {
             rangeTextV.setText(getResources().getString(R.string.clientRange, r));
