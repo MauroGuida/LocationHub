@@ -117,9 +117,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         //Place a Red marker for each client connected to the server and remove the disconnected one
         mainViewModel.getAllClientsPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users -> {
-            users.forEach(user ->
-                    setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername()));
-
+            users.forEach(user -> {
+                if (!user.isPrivate())
+                    setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername());
+                else if (user.isPrivate() && clientsPositionMarkers.containsKey(user.getUsername()))
+                    removeMapPointByName(user.getUsername());
+            });
 
             for (String markerName : clientsPositionMarkers.keySet()) {
                 if (users.stream().noneMatch(u -> u.getUsername().equals(markerName)))

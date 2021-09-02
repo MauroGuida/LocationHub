@@ -50,7 +50,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         User u = userList.get(position);
 
         holder.usernameTextV.setText(u.getUsername());
-        if (u.getPosition() != null) {
+        if (u.getPosition() != null && !u.isPrivate()) {
             holder.latlongTextV.setText(context.getResources().getString(R.string.LatLon,
                     String.valueOf(u.getPosition().getLatitude()),
                     String.valueOf(u.getPosition().getLongitude())));
