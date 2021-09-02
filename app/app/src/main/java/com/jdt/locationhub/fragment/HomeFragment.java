@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,10 +116,17 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         //Create a Map that contains a marker for each connected client
         clientsPositionMarkers = new HashMap<>();
 
-        //Place a Red marker for each client connected to the server
-        mainViewModel.getAllUsersPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
-                users.forEach(user ->
-                        setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername())));
+        //Place a Red marker for each client connected to the server and remove the disconnected one
+        mainViewModel.getAllUsersPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users -> {
+            users.forEach(user ->
+                    setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername()));
+
+
+            for (String n : clientsPositionMarkers.keySet()) {
+                if (users.stream().noneMatch(u -> u.getUsername().equals(n)))
+                    Objects.requireNonNull(clientsPositionMarkers.remove(n)).remove();
+            }
+        });
     }
 
     private void updateUserPositionMarker(Position position) {
@@ -137,9 +145,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    //Set an user Marker on the map or replace his position if already exists
+    //Set an user Red Mark on the map or replace his position if already exists
     public void setOnMapPoint(LatLng point, String name, boolean center) {
-        if (map == null) return;
+        if (map == null || (point.latitude == 0 && point.longitude == 0)) return;
 
         if (clientsPositionMarkers.containsKey(name))
             Objects.requireNonNull(clientsPositionMarkers.get(name)).setPosition(point);
@@ -151,5 +159,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     public void setOnMapPoint(LatLng point, String name) {
         setOnMapPoint(point, name, false);
+    }
+
+    public void removeMapPointByName(String name) {
+        if (map == null) return;
+
+        Marker marker = clientsPositionMarkers.remove(name);
+
+        if (marker != null)
+            marker.remove();
     }
 }

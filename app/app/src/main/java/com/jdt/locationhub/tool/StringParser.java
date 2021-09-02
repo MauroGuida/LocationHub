@@ -11,8 +11,8 @@ public class StringParser {
     public static List<User> usersParser(String message) {
         List<User> userList = new ArrayList<>();
 
-        if (message != null && !message.isEmpty() && !message.equals("{}")) {
-            Scanner s = new Scanner(message);
+        if (message != null && !message.isEmpty() && !message.equals("OK - {}")) {
+            Scanner s = new Scanner(message.substring(6, message.length()-1));
             s.useDelimiter("@");
 
             List<String> users = new ArrayList<>();
@@ -26,9 +26,8 @@ public class StringParser {
                 String username = ss.next();
                 float distance = ss.nextFloat();
                 int isPrivate = ss.nextInt();
-                String position = ss.next();
 
-                Scanner sss = new Scanner(position.substring(1, position.length()-1));
+                Scanner sss = new Scanner(u.substring(u.indexOf('[')+1, u.indexOf(']')));
                 sss.useDelimiter(";");
 
                 float lat = sss.nextFloat();

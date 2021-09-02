@@ -2,6 +2,7 @@ package com.jdt.locationhub.repository;
 
 import android.os.StrictMode;
 
+import com.jdt.locationhub.exception.NoInternetConnectionException;
 import com.jdt.locationhub.exception.UsernameAlreadyInUseException;
 import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
@@ -44,7 +45,7 @@ public class ServerSocket {
     //-----------------------------------------------------------------------------------\\
 
     private static ServerSocket serverSocket;
-    public static ServerSocket getServerSocket() {
+    public static ServerSocket getServerSocket() throws NoInternetConnectionException {
         StrictMode.setThreadPolicy(policy);
 
         if (serverSocket == null) {
@@ -52,7 +53,7 @@ public class ServerSocket {
                 serverSocket = new ServerSocket();
             } catch (IOException e) {
                 e.printStackTrace();
-                return null;
+                throw new NoInternetConnectionException();
             }
         }
 
@@ -110,26 +111,18 @@ public class ServerSocket {
 
     //TODO Update clients informations from AWS
     private void updateUsersLocation() throws IOException {
-        StringParser.usersParser(sendMessage("GET_LOCATIONS ")).forEach(u -> {
-            if (userSet.contains(u)) {
-                userSet.get(userSet.indexOf(u)).setPosition(u.getPosition());
-                userSet.get(userSet.indexOf(u)).setDistance(u.getDistance());
-            } else
-                userSet.add(u);
-        });
+        userSet.clear();
+        userSet.addAll(StringParser.usersParser(sendMessage("GET_LOCATIONS ")));
     }
 
-    public List<User> getAllConnectedUsers(long range) {
+    public List<User> getAllConnectedUsers(float range) {
         try {
             updateUsersLocation();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        userSet.forEach(u -> {
-            if (u.getDistance() > range)
-                userSet.remove(u);
-        });
+        userSet.removeIf(u -> u.getDistance() > range);
 
         return userSet;
     }

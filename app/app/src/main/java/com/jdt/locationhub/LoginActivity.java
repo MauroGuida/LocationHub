@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.jdt.locationhub.exception.NoInternetConnectionException;
 import com.jdt.locationhub.exception.UsernameAlreadyInUseException;
 import com.jdt.locationhub.exception.UsernameNotValidException;
 import com.jdt.locationhub.tool.DoneOnEditorActionListener;
@@ -60,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
             usernameEditT.setError(getResources().getString(R.string.usernameNotValid));
         } catch (UsernameAlreadyInUseException e) {
             usernameEditT.setError(getResources().getString(R.string.usernameAlreadyInUse));
-        } catch (IOException e) {
+        } catch (IOException | NoInternetConnectionException e) {
             Toast.makeText(this, getResources().getString(R.string.networkError), Toast.LENGTH_LONG).show();
         }
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.jdt.locationhub.exception.NoInternetConnectionException;
 import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.repository.ServerSocket;
@@ -20,7 +21,7 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<Position> userPosition = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isPrivacyEnabled = new MutableLiveData<>();
 
-    private long clientsRange = 100;
+    private final MutableLiveData<Float> clientsRange = new MutableLiveData<>();
     private final MutableLiveData<List<User>> connectedUsers = new MutableLiveData<>();
 
     //-----------------------------------------------------------------------------------\\
@@ -29,23 +30,32 @@ public class MainViewModel extends ViewModel {
         this.username = username;
         userPosition.setValue(null);
         isPrivacyEnabled.setValue(true);
+        clientsRange.setValue(500.0F);
 
-        serverSocket = Objects.requireNonNull(ServerSocket.getServerSocket());
+        try {
+            serverSocket = ServerSocket.getServerSocket();
+        } catch (NoInternetConnectionException e) {
+            e.printStackTrace();
+        }
     }
 
     //-----------------------------------------------------------------------------------\\
 
     public void updateUsersPosition() {
-        connectedUsers.setValue(serverSocket.getAllConnectedUsers(clientsRange));
+        connectedUsers.setValue(serverSocket.getAllConnectedUsers(clientsRange.getValue()));
     }
 
     public LiveData<? extends List<User>> getAllUsersPosition() {
         return connectedUsers;
     }
 
-    public void setClientsRange(long clientsRange) {
-        this.clientsRange = clientsRange;
+    public void setClientsRange(float range) {
+        clientsRange.setValue(range);
         updateUsersPosition();
+    }
+
+    public LiveData<Float> getClientsRange() {
+        return clientsRange;
     }
 
     //-----------------------------------------------------------------------------------\\
