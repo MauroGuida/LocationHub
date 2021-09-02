@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -22,6 +23,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.jdt.locationhub.exception.NoInternetConnectionException;
 import com.jdt.locationhub.fragment.HomeFragment;
 import com.jdt.locationhub.fragment.PeopleFragment;
 import com.jdt.locationhub.fragment.SettingsFragment;
@@ -34,20 +36,30 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel mainViewModel;
 
     private AlertDialog gpsNotEnabled;
+    private AlertDialog networkNotEnabled;
+
+    //-----------------------------------------------------------------------------------\\
 
     private final Handler locationHandler = new Handler();
     private final Runnable locationFetcher = new Runnable() {
         @Override
         public void run() {
-            if (isLocationEnabled()) {
-                fetchClientLocation(); //Updates Client this position
-                mainViewModel.updateUsersPosition(); //Updates Users position
-            } else
+            boolean locationEnabled = isLocationEnabled();
+            boolean networkEnabled = isNetworkEnabled();
+
+            if (locationEnabled && networkEnabled) {
+                fetchThisClientLocation(); //Updates this Client position
+                fetchOtherClientsLocation(); //Updates other Clients position
+            } else if(!locationEnabled)
                 showGpsNotEnabledDialog();
+            else
+                showNetworkErrorDialog();
 
             locationHandler.postDelayed(this, 10000); //Repeat this process every 10 Seconds
         }
     };
+
+    //-----------------------------------------------------------------------------------\\
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,10 +115,19 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton(getResources().getString(R.string.cancel), (dialogInterface, i) ->
                         finishAffinity())
                 .create();
+
+        //Creates a Network not enabled Dialog
+        networkNotEnabled = new AlertDialog.Builder(this)
+                .setMessage(getResources().getString(R.string.networkError))
+                .setNegativeButton(getResources().getString(R.string.cancel), (dialogInterface, i) ->
+                        finishAffinity())
+                .create();
     }
 
+    //-----------------------------------------------------------------------------------\\
+
     @SuppressLint("MissingPermission")
-    private void fetchClientLocation() {
+    private void fetchThisClientLocation() {
         fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
             @Override
             public boolean isCancellationRequested() {
@@ -122,11 +143,19 @@ public class MainActivity extends AppCompatActivity {
             //Retrieve location information
             try {
                 Address address = new Geocoder(this).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
-                mainViewModel.updateClientPosition(address);
-            } catch (IOException e) {
-                e.printStackTrace();
+                mainViewModel.updateThisClientPosition(address);
+            } catch (IOException | NoInternetConnectionException e) {
+                showNetworkErrorDialog();
             }
         });
+    }
+
+    private void fetchOtherClientsLocation() {
+        try {
+            mainViewModel.updateOtherClientsLocation();
+        } catch (NoInternetConnectionException e) {
+            showNetworkErrorDialog();
+        }
     }
 
     private boolean isLocationEnabled() {
@@ -148,5 +177,19 @@ public class MainActivity extends AppCompatActivity {
     private void showGpsNotEnabledDialog() {
         if (!gpsNotEnabled.isShowing())
             gpsNotEnabled.show();
+    }
+
+    //-----------------------------------------------------------------------------------\\
+
+    @SuppressLint("MissingPermission")
+    private boolean isNetworkEnabled() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+    }
+
+    private void showNetworkErrorDialog() {
+        if (!networkNotEnabled.isShowing())
+            networkNotEnabled.show();
     }
 }

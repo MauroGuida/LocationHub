@@ -80,7 +80,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         usernameTextV.setText(mainViewModel.getUsername());
 
-        mainViewModel.getUserPosition().observe(getViewLifecycleOwner(), this::updateUserPositionMarker);
+        mainViewModel.getThisClientPosition().observe(getViewLifecycleOwner(), this::updateUserPositionMarker);
 
         mapView.onCreate(null);
         mapView.getMapAsync(this);
@@ -110,13 +110,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 .visible(false));
 
         //Fetch the last known position, if available, and set the Client Azure marker
-        updateUserPositionMarker(mainViewModel.getUserPosition().getValue());
+        updateUserPositionMarker(mainViewModel.getThisClientPosition().getValue());
 
         //Create a Map that contains a marker for each connected client
         clientsPositionMarkers = new HashMap<>();
 
         //Place a Red marker for each client connected to the server and remove the disconnected one
-        mainViewModel.getAllUsersPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users -> {
+        mainViewModel.getAllClientssPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users -> {
             users.forEach(user ->
                     setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername()));
 

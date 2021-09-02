@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.view.LayoutInflater;
@@ -62,7 +61,7 @@ public class SettingsFragment extends Fragment {
         privacySwitch.setChecked(!mainViewModel.getPrivacyStatus());
         privacySwitch.setOnCheckedChangeListener((compoundButton, b) -> mainViewModel.setPrivacy(b));
 
-        mainViewModel.getClientsRange().observe(getViewLifecycleOwner(), r -> {
+        mainViewModel.getClientsDiscoveryRange().observe(getViewLifecycleOwner(), r -> {
             rangeTextV.setText(getResources().getString(R.string.clientRange, r));
             rangeSlider.setValue(r);
         });
@@ -76,7 +75,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onStopTrackingTouch(@NonNull Slider slider) {
                 rangeTextV.setText(getResources().getString(R.string.clientRange, slider.getValue()));
-                mainViewModel.setClientsRange((long) slider.getValue());
+                mainViewModel.setClientsDiscoveryRange((long) slider.getValue());
             }
         });
 

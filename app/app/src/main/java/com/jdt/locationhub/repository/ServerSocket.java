@@ -90,6 +90,12 @@ public class ServerSocket {
             bufferedWriter.close();
     }
 
+    //TODO Update clients informations from AWS
+    private void updateUsersLocation() throws IOException {
+        userSet.clear();
+        userSet.addAll(StringParser.usersParser(sendMessage("GET_LOCATIONS ")));
+    }
+
     //-----------------------------------------------------------------------------------\\
 
     public boolean login(String username) throws UsernameAlreadyInUseException, IOException {
@@ -101,25 +107,19 @@ public class ServerSocket {
         return response.equals(OK_RESPONSE);
     }
 
-    public void sendClientPosition(Position p) {
+    public void sendClientPosition(Position p) throws NoInternetConnectionException {
         try {
             sendMessage("SEND_LOCATION " + p.serialize());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new NoInternetConnectionException();
         }
     }
 
-    //TODO Update clients informations from AWS
-    private void updateUsersLocation() throws IOException {
-        userSet.clear();
-        userSet.addAll(StringParser.usersParser(sendMessage("GET_LOCATIONS ")));
-    }
-
-    public List<User> getAllConnectedUsers(float range) {
+    public List<User> getAllConnectedUsers(float range) throws NoInternetConnectionException {
         try {
             updateUsersLocation();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new NoInternetConnectionException();
         }
 
         userSet.removeIf(u -> u.getDistance() > range);

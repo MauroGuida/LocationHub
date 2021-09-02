@@ -59,7 +59,7 @@ public class PeopleFragment extends Fragment {
 
         userRecyclerV = v.findViewById(R.id.user_RecyclerView);
 
-        mainViewModel.getAllUsersPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
+        mainViewModel.getAllClientssPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users ->
                 userRVAdapter.notifyDataSetChanged());
 
         initRecyclerView();
@@ -73,7 +73,7 @@ public class PeopleFragment extends Fragment {
         userRecyclerV.setLayoutManager(linearLayoutManager);
 
         //Initializing the adapter class and passing data to it
-        userRVAdapter = new UserAdapter(requireContext(), mainViewModel.getAllUsersPosition().getValue());
+        userRVAdapter = new UserAdapter(requireContext(), mainViewModel.getAllClientssPosition().getValue());
         userRecyclerV.setAdapter(userRVAdapter);
     }
 

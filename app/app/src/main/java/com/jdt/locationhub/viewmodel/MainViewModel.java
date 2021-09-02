@@ -18,49 +18,52 @@ public class MainViewModel extends ViewModel {
     private ServerSocket serverSocket;
 
     private String username;
-    private final MutableLiveData<Position> userPosition = new MutableLiveData<>();
+    private final MutableLiveData<Position> thisClientPosition = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isPrivacyEnabled = new MutableLiveData<>();
 
-    private final MutableLiveData<Float> clientsRange = new MutableLiveData<>();
-    private final MutableLiveData<List<User>> connectedUsers = new MutableLiveData<>();
+    private final MutableLiveData<Float> clientsDiscoveryRange = new MutableLiveData<>();
+    private final MutableLiveData<List<User>> connectedClients = new MutableLiveData<>();
 
     //-----------------------------------------------------------------------------------\\
 
     public void init(String username) {
         this.username = username;
-        userPosition.setValue(null);
+        thisClientPosition.setValue(null);
         isPrivacyEnabled.setValue(true);
-        clientsRange.setValue(500.0F);
+        clientsDiscoveryRange.setValue(500.0F);
 
         try {
             serverSocket = ServerSocket.getServerSocket();
         } catch (NoInternetConnectionException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //Should never occur, Login already have instantiated a Connection Socket
         }
     }
 
     //-----------------------------------------------------------------------------------\\
 
-    public void updateUsersPosition() {
-        connectedUsers.setValue(serverSocket.getAllConnectedUsers(clientsRange.getValue()));
+    public void updateOtherClientsLocation() throws NoInternetConnectionException {
+        connectedClients.setValue(serverSocket.getAllConnectedUsers(clientsDiscoveryRange.getValue()));
     }
 
-    public LiveData<? extends List<User>> getAllUsersPosition() {
-        return connectedUsers;
+    public LiveData<? extends List<User>> getAllClientssPosition() {
+        return connectedClients;
     }
 
-    public void setClientsRange(float range) {
-        clientsRange.setValue(range);
-        updateUsersPosition();
+    public void setClientsDiscoveryRange(float range) {
+        clientsDiscoveryRange.setValue(range);
+
+        try {
+            updateOtherClientsLocation();
+        } catch (NoInternetConnectionException ignored) {}
     }
 
-    public LiveData<Float> getClientsRange() {
-        return clientsRange;
+    public LiveData<Float> getClientsDiscoveryRange() {
+        return clientsDiscoveryRange;
     }
 
     //-----------------------------------------------------------------------------------\\
 
-    public void updateClientPosition(Address address) {
+    public void updateThisClientPosition(Address address) throws NoInternetConnectionException {
         Position position = new Position.Builder()
                 .latitude(address.getLatitude())
                 .longitude(address.getLongitude())
@@ -71,12 +74,12 @@ public class MainViewModel extends ViewModel {
                 .countryCode(address.getCountryCode())
                 .build();
 
-        userPosition.setValue(position);
+        thisClientPosition.setValue(position);
         serverSocket.sendClientPosition(position);
     }
 
-    public LiveData<Position> getUserPosition() {
-        return userPosition;
+    public LiveData<Position> getThisClientPosition() {
+        return thisClientPosition;
     }
 
     public String getUsername() {
