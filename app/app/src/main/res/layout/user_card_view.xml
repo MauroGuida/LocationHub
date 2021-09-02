@@ -17,6 +17,7 @@
             android:src="@drawable/ic_baseline_person_pin_64"
             app:tint="?colorPrimary"
             android:layout_marginEnd="4dp"
+            android:layout_gravity="center"
             android:contentDescription="UserImage" />
 
         <LinearLayout
@@ -30,6 +31,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/username"/>
+
+            <TextView
+                android:id="@+id/distance_TextV_UserCardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/user_distance"/>
 
             <TextView
                 android:id="@+id/latlong_TextV_UserCardView"

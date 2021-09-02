@@ -19,12 +19,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     //Viewholder class for initializing views
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView usernameTextV;
+        private final TextView distanceTextV;
         private final TextView latlongTextV;
         private final TextView addressLineTextV;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             usernameTextV = itemView.findViewById(R.id.username_TextV_UserCardView);
+            distanceTextV = itemView.findViewById(R.id.distance_TextV_UserCardView);
             latlongTextV = itemView.findViewById(R.id.latlong_TextV_UserCardView);
             addressLineTextV = itemView.findViewById(R.id.addressLine_TextV_UserCardView);
         }
@@ -50,6 +52,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         User u = userList.get(position);
 
         holder.usernameTextV.setText(u.getUsername());
+        holder.distanceTextV.setText(context.getResources().getString(R.string.user_distance, u.getDistance()));
         if (u.getPosition() != null && !u.isPrivate()) {
             holder.latlongTextV.setText(context.getResources().getString(R.string.LatLon,
                     String.valueOf(u.getPosition().getLatitude()),

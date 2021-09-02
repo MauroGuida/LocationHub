@@ -2,8 +2,9 @@
     <string name="app_name">LocationHub</string>
 
     <string name="MeOnTheMap">IO</string>
-    <string name="LatLon">Lat: %1s Lon: %2s</string>
+    <string name="LatLon">Lat: %1s\nLon: %2s</string>
     <string name="username">Username</string>
+    <string name="user_distance">Distance: %.2f Km</string>
     <string name="login">Login</string>
     <string name="address">Address</string>
 
