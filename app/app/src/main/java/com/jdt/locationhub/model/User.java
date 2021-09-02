@@ -5,15 +5,13 @@ import androidx.annotation.Nullable;
 public class User {
     private final String username;
     private float distance; //Km
+    private final boolean privacy;
     private Position position;
 
-    public User(String username) {
-        this.username = username;
-    }
-
-    public User(String username, float distance, Position position) {
+    public User(String username, float distance, boolean privacy, Position position) {
         this.username = username;
         this.distance = distance;
+        this.privacy = privacy;
         this.position = position;
     }
 
@@ -27,6 +25,10 @@ public class User {
 
     public void setDistance(float distance) {
         this.distance = distance;
+    }
+
+    public boolean isPrivate() {
+        return privacy;
     }
 
     public Position getPosition() {

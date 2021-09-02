@@ -38,7 +38,7 @@ public class StringParser {
                 String country = sss.next();
                 String countryCode = sss.next();
 
-                userList.add(new User(username, distance, new Position.Builder()
+                userList.add(new User(username, distance, isPrivate == 1, new Position.Builder()
                         .latitude(lat)
                         .longitude(log)
                         .addressLine(address)
