@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,9 +121,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername()));
 
 
-            for (String n : clientsPositionMarkers.keySet()) {
-                if (users.stream().noneMatch(u -> u.getUsername().equals(n)))
-                    Objects.requireNonNull(clientsPositionMarkers.remove(n)).remove();
+            for (String markerName : clientsPositionMarkers.keySet()) {
+                if (users.stream().noneMatch(u -> u.getUsername().equals(markerName)))
+                    removeMapPointByName(markerName);
             }
         });
     }
@@ -162,8 +161,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void removeMapPointByName(String name) {
-        if (map == null) return;
-
         Marker marker = clientsPositionMarkers.remove(name);
 
         if (marker != null)
