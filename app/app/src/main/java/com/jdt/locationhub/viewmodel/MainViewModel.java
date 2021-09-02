@@ -45,7 +45,7 @@ public class MainViewModel extends ViewModel {
         connectedClients.setValue(serverSocket.getAllConnectedUsers(clientsDiscoveryRange.getValue()));
     }
 
-    public LiveData<? extends List<User>> getAllClientssPosition() {
+    public LiveData<? extends List<User>> getAllClientsPosition() {
         return connectedClients;
     }
 
