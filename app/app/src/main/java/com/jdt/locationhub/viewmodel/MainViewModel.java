@@ -11,8 +11,10 @@ import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.repository.ServerSocket;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainViewModel extends ViewModel {
     private ServerSocket serverSocket;
@@ -40,6 +42,14 @@ public class MainViewModel extends ViewModel {
             serverSocket = ServerSocket.getServerSocket();
         } catch (NoInternetConnectionException e) {
             e.printStackTrace(); //Should never occur, Login already have instantiated a Connection Socket
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -82,8 +92,10 @@ public class MainViewModel extends ViewModel {
                 .countryCode(address.getCountryCode())
                 .build();
 
-        thisClientPosition.setValue(position);
-        serverSocket.sendClientPosition(position);
+        if (!Objects.equals(thisClientPosition.getValue(), position)) {
+            thisClientPosition.setValue(position);
+            serverSocket.sendClientPosition(position);
+        }
     }
 
     public LiveData<Position> getThisClientPosition() {

@@ -16,6 +16,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -122,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton(getResources().getString(R.string.cancel), (dialogInterface, i) ->
                         finishAffinity())
                 .create();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mainViewModel.closeConnection();
+        super.onDestroy();
     }
 
     //-----------------------------------------------------------------------------------\\
