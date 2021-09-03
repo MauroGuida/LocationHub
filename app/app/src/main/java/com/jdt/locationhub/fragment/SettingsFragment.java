@@ -31,6 +31,7 @@ public class SettingsFragment extends Fragment {
     private SwitchMaterial sharePositionSwitch;
     private TextView rangeTextV;
     private RangeSlider rangeSlider;
+    private TextView rangeMinMaxTextV;
 
     /**
      * Use this factory method to create a new instance of
@@ -61,6 +62,7 @@ public class SettingsFragment extends Fragment {
         sharePositionSwitch = v.findViewById(R.id.privacy_Switch_FragmentSettings);
         rangeTextV = v.findViewById(R.id.range_TextView_FragmentSettings);
         rangeSlider = v.findViewById(R.id.range_Slider_FragmentSettings);
+        rangeMinMaxTextV = v.findViewById(R.id.rangeMinMax_TextView_FragmentSettings);
 
         sharePositionSwitch.setChecked(!mainViewModel.isPrivacyEnabled().getValue());
         sharePositionSwitch.setOnCheckedChangeListener((compoundButton, b) -> mainViewModel.setPrivacyEnabled(!b));
@@ -69,6 +71,7 @@ public class SettingsFragment extends Fragment {
         mainViewModel.getClientsDiscoveryRange().observe(getViewLifecycleOwner(), r -> {
             rangeTextV.setText(getResources().getString(R.string.clientRange, r.get(1)-r.get(0)));
             rangeSlider.setValues(r);
+            rangeMinMaxTextV.setText(getResources().getString(R.string.rangeMinMaxDistance, r.get(0), r.get(1)));
         });
 
         rangeSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {

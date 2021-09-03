@@ -18,9 +18,12 @@
     <string name="usernameHelperText">Min 2 caratteri e nessun carattere speciale</string>
     <string name="networkError">Sono stati riscontrati problemi di rete, verifica la connessione e riprova</string>
     <string name="abnormalError">Si è verificato un errore anomalo lato server, riprovare più tardi</string>
-    <string name="position_privacy">Condividi la tua posizione</string>
+
     <string name="privacy">Privacy</string>
+    <string name="position_privacy">Condividi la tua posizione</string>
+
     <string name="clientRange">Trova client nell\'arco di %.2f Km:</string>
+    <string name="rangeMinMaxDistance">Distanza minima da te: %.2f Km\nDistanza massima da te: %.2f Km</string>
 
     <string name="location_unknown">Location Unknown</string>
     <string name="address_unknown">Address Unknown</string>
