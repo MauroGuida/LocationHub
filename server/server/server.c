@@ -238,15 +238,23 @@ int server_accept(server_t *server)
     socklen_t client_socklen = sizeof(struct sockaddr_in);
     pthread_t tid;
     thread_args_t *targs;
+    int option = 1;
 
     for (;;)
     {
         err = (client_sockfd = accept(server->sockfd, (struct sockaddr *)&client_sockaddr, &client_socklen));
-        
         if (err == -1)
         {
             perror("accept");
             fprintf(stderr, "Failed to accept new client.\n");
+            return err;
+        }
+
+        err = setsockopt(client_sockfd, SOL_SOCKET, SO_KEEPALIVE, &option, sizeof(int));
+        if (err == -1)
+        {
+            perror("setsockopt");
+            fprintf(stderr, "Failed to enable SO_KEEPALIVE flag.\n");
             return err;
         }
 
