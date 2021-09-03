@@ -115,14 +115,12 @@ public class ServerSocket {
         }
     }
 
-    public List<User> getAllConnectedUsers(float range) throws NoInternetConnectionException {
+    public List<User> getAllConnectedUsers() throws NoInternetConnectionException {
         try {
             updateUsersLocation();
         } catch (IOException e) {
             throw new NoInternetConnectionException();
         }
-
-        userSet.removeIf(u -> u.getDistance() > range);
 
         return userSet;
     }

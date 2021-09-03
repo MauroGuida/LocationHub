@@ -11,10 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.material.slider.RangeSlider;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.jdt.locationhub.R;
 import com.jdt.locationhub.viewmodel.MainViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,7 +30,7 @@ public class SettingsFragment extends Fragment {
 
     private SwitchMaterial sharePositionSwitch;
     private TextView rangeTextV;
-    private Slider rangeSlider;
+    private RangeSlider rangeSlider;
 
     /**
      * Use this factory method to create a new instance of
@@ -63,20 +67,19 @@ public class SettingsFragment extends Fragment {
         mainViewModel.isPrivacyEnabled().observe(getViewLifecycleOwner(), p -> sharePositionSwitch.setChecked(!p));
 
         mainViewModel.getClientsDiscoveryRange().observe(getViewLifecycleOwner(), r -> {
-            rangeTextV.setText(getResources().getString(R.string.clientRange, r));
-            rangeSlider.setValue(r);
+            rangeTextV.setText(getResources().getString(R.string.clientRange, r.get(1)-r.get(0)));
+            rangeSlider.setValues(r);
         });
 
-        rangeSlider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+        rangeSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
             @Override
-            public void onStartTrackingTouch(@NonNull Slider slider) {
+            public void onStartTrackingTouch(@NonNull RangeSlider slider) {
 
             }
 
             @Override
-            public void onStopTrackingTouch(@NonNull Slider slider) {
-                rangeTextV.setText(getResources().getString(R.string.clientRange, slider.getValue()));
-                mainViewModel.setClientsDiscoveryRange((long) slider.getValue());
+            public void onStopTrackingTouch(@NonNull RangeSlider slider) {
+                mainViewModel.setClientsDiscoveryRange(slider.getValues());
             }
         });
 

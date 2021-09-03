@@ -11,6 +11,7 @@ import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.repository.ServerSocket;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainViewModel extends ViewModel {
@@ -20,7 +21,7 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<Position> thisClientPosition = new MutableLiveData<>();
     private final MutableLiveData<Boolean> PrivacyEnabled = new MutableLiveData<>();
 
-    private final MutableLiveData<Float> clientsDiscoveryRange = new MutableLiveData<>();
+    private final MutableLiveData<List<Float>> clientsDiscoveryRange = new MutableLiveData<>();
     private final MutableLiveData<List<User>> connectedClients = new MutableLiveData<>();
 
     //-----------------------------------------------------------------------------------\\
@@ -29,7 +30,11 @@ public class MainViewModel extends ViewModel {
         this.username = username;
         thisClientPosition.setValue(null);
         PrivacyEnabled.setValue(true);
-        clientsDiscoveryRange.setValue(500.0F);
+
+        List<Float> f = new ArrayList<>();
+        f.add(0f);
+        f.add(500f);
+        clientsDiscoveryRange.setValue(f);
 
         try {
             serverSocket = ServerSocket.getServerSocket();
@@ -41,14 +46,18 @@ public class MainViewModel extends ViewModel {
     //-----------------------------------------------------------------------------------\\
 
     public void updateOtherClientsLocation() throws NoInternetConnectionException {
-        connectedClients.setValue(serverSocket.getAllConnectedUsers(clientsDiscoveryRange.getValue()));
+        List<User> users = serverSocket.getAllConnectedUsers();
+
+        users.removeIf(u -> u.getDistance() > clientsDiscoveryRange.getValue().get(1) || u.getDistance() < clientsDiscoveryRange.getValue().get(0));
+
+        connectedClients.setValue(users);
     }
 
     public LiveData<? extends List<User>> getAllClientsPosition() {
         return connectedClients;
     }
 
-    public void setClientsDiscoveryRange(float range) {
+    public void setClientsDiscoveryRange(List<Float> range) {
         clientsDiscoveryRange.setValue(range);
 
         try {
@@ -56,7 +65,7 @@ public class MainViewModel extends ViewModel {
         } catch (NoInternetConnectionException ignored) {}
     }
 
-    public LiveData<Float> getClientsDiscoveryRange() {
+    public LiveData<List<Float>> getClientsDiscoveryRange() {
         return clientsDiscoveryRange;
     }
 
