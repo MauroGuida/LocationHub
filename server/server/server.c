@@ -157,7 +157,6 @@ void *handle_client(void *arg)
     pthread_exit((char *)0);
 }
 
-
 server_t *server_create(int port_num)
 {
     server_t *server = (server_t *)malloc(sizeof(server_t));
@@ -239,24 +238,45 @@ int server_accept(server_t *server)
     pthread_t tid;
     thread_args_t *targs;
     int option = 1;
+    int maxpkt = 10;
 
     for (;;)
     {
-        err = (client_sockfd = accept(server->sockfd, (struct sockaddr *)&client_sockaddr, &client_socklen));
-        if (err == -1)
+        if ((err = (client_sockfd = accept(server->sockfd, (struct sockaddr *)&client_sockaddr, &client_socklen))) == -1)
         {
             perror("accept");
             fprintf(stderr, "Failed to accept new client.\n");
             return err;
         }
 
-        err = setsockopt(client_sockfd, SOL_SOCKET, SO_KEEPALIVE, &option, sizeof(int));
-        if (err == -1)
+        if ((err = setsockopt(client_sockfd, SOL_SOCKET, SO_KEEPALIVE, &option, sizeof(int))) == -1)
         {
             perror("setsockopt");
-            fprintf(stderr, "Failed to enable SO_KEEPALIVE flag.\n");
+            fprintf(stderr, "Failed to set SO_KEEPALIVE flag.\n");
             return err;
         }
+
+        if ((err = setsockopt(client_sockfd, IPPROTO_TCP, TCP_KEEPIDLE, &option, sizeof(int))) == -1)
+        {
+            perror("setsockopt");
+            fprintf(stderr, "Failed to set TCP_KEEPIDLE flag.\n");
+            return err;
+        }
+
+        if ((err = setsockopt(client_sockfd, IPPROTO_TCP, TCP_KEEPINTVL, &option, sizeof(int))) == -1)
+        {
+            perror("setsockopt");
+            fprintf(stderr, "Failed to set TCP_KEEPINTVL flag.\n");
+            return err;
+        }
+
+        if ((err = setsockopt(client_sockfd, IPPROTO_TCP, TCP_KEEPCNT, &maxpkt, sizeof(int))) == -1)
+        {
+            perror("setsockopt");
+            fprintf(stderr, "Failed to set TCP_KEEPCNT flag.\n");
+            return err;
+        }
+
 
         targs = thread_args_create(server, client_sockfd, &client_sockaddr);
 
