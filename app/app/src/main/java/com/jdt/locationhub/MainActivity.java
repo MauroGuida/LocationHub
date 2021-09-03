@@ -16,7 +16,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -113,14 +112,22 @@ public class MainActivity extends AppCompatActivity {
                     if (!isLocationEnabled())
                         startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                 })
-                .setNegativeButton(getResources().getString(R.string.cancel), (dialogInterface, i) ->
-                        finishAffinity())
+                .setNegativeButton(getResources().getString(R.string.cancel), (dialogInterface, i) -> {
+                    if (!isLocationEnabled())
+                        finishAffinity();
+                })
+                .setOnDismissListener(dialogInterface -> {
+                    if (!isLocationEnabled())
+                        showGpsNotEnabledDialog();
+                })
                 .create();
 
         //Creates a Network not enabled Dialog
         networkNotEnabled = new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.networkError))
                 .setNegativeButton(getResources().getString(R.string.cancel), (dialogInterface, i) ->
+                        finishAffinity())
+                .setOnDismissListener(dialogInterface ->
                         finishAffinity())
                 .create();
     }
