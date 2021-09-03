@@ -12,7 +12,7 @@
     <ImageView
         android:layout_width="256dp"
         android:layout_height="256dp"
-        android:src="@drawable/map"
+        android:src="@drawable/undraw_destination_pic"
         android:layout_gravity="top|center"
         android:layout_marginBottom="50dp"
         android:contentDescription="AppIcon" />

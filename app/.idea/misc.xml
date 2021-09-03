@@ -5,8 +5,13 @@
       <map>
         <entry key="../../../../../../../../layout/custom_preview.xml" value="0.3265625" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.375" />
+        <entry key="app/src/main/res/drawable/ic_baseline_my_location_24.xml" value="0.390625" />
+        <entry key="app/src/main/res/drawable/ic_baseline_people_24.xml" value="0.390625" />
         <entry key="app/src/main/res/drawable/ic_baseline_person_24.xml" value="0.375" />
+        <entry key="app/src/main/res/drawable/ic_baseline_person_pin_64.xml" value="0.390625" />
         <entry key="app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.375" />
+        <entry key="app/src/main/res/drawable/undraw_destination_pic.xml" value="0.67" />
+        <entry key="app/src/main/res/drawable/undraw_profile_pic.xml" value="0.390625" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.37447916666666664" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.33" />

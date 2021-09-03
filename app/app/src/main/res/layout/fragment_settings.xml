@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,15 +20,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="8dp">
+        android:layout_margin="15dp">
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/privacy_Switch_FragmentSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="false"
+            style="@style/Widget.App.Switch"
             android:text="@string/position_privacy"
             android:elevation="4dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/preferences"
+        android:textSize="30sp"
+
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="4dp"
+        android:layout_gravity="start" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="15dp">
 
         <TextView
             android:id="@+id/range_TextView_FragmentSettings"

@@ -24,5 +24,6 @@
 
     <string name="location_unknown">Location Unknown</string>
     <string name="address_unknown">Address Unknown</string>
+    <string name="preferences">Preferenze</string>
 
 </resources>
