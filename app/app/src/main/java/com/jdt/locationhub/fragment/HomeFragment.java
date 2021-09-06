@@ -143,6 +143,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             showMarkerInfo(marker);
             return true;
         });
+
+        //Closes marker info CardView
+        map.setOnMapClickListener(l -> {
+            if (locationInfoCardV.getVisibility() == View.VISIBLE) {
+                locationInfoCardV.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up));
+                locationInfoCardV.setVisibility(View.GONE);
+            }
+        });
     }
 
 
@@ -167,22 +175,19 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void showMarkerInfo(Marker m) {
-        if (locationInfoCardV.getVisibility() == View.VISIBLE) {
-            locationInfoCardV.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up));
-            locationInfoCardV.setVisibility(View.GONE);
+        mainViewModel.getThisClientPosition().removeObserver(thisUserPositionObserver);
+        mainViewModel.getAllClientsPosition().removeObserver(selectedUserPositionObserver);
 
-            mainViewModel.getThisClientPosition().removeObserver(thisUserPositionObserver);
-            mainViewModel.getAllClientsPosition().removeObserver(selectedUserPositionObserver);
+        if (m.equals(thisClientPositionMarker)) {
+            usernameTextV.setText(mainViewModel.getUsername());
+            mainViewModel.getThisClientPosition().observe(getViewLifecycleOwner(), thisUserPositionObserver);
         } else {
-            if (m.equals(thisClientPositionMarker)) {
-                usernameTextV.setText(mainViewModel.getUsername());
-                mainViewModel.getThisClientPosition().observe(getViewLifecycleOwner(), thisUserPositionObserver);
-            } else {
-                usernameTextV.setText(m.getTitle());
-                selectedUserUsername = m.getTitle();
-                mainViewModel.getAllClientsPosition().observe(getViewLifecycleOwner(), selectedUserPositionObserver);
-            }
+            usernameTextV.setText(m.getTitle());
+            selectedUserUsername = m.getTitle();
+            mainViewModel.getAllClientsPosition().observe(getViewLifecycleOwner(), selectedUserPositionObserver);
+        }
 
+        if (locationInfoCardV.getVisibility() != View.VISIBLE) {
             locationInfoCardV.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down));
             locationInfoCardV.setVisibility(View.VISIBLE);
         }
