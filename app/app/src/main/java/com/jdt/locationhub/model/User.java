@@ -4,11 +4,11 @@ import androidx.annotation.Nullable;
 
 public class User {
     private final String username;
-    private float distance; //Km
+    private double distance; //Km
     private final boolean privacy;
     private Position position;
 
-    public User(String username, float distance, boolean privacy, Position position) {
+    public User(String username, double distance, boolean privacy, Position position) {
         this.username = username;
         this.distance = distance;
         this.privacy = privacy;
@@ -19,7 +19,7 @@ public class User {
         return username;
     }
 
-    public float getDistance() {
+    public double getDistance() {
         return distance;
     }
 
