@@ -5,6 +5,7 @@ import com.jdt.locationhub.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class StringParser {
@@ -18,9 +19,10 @@ public class StringParser {
                 User user = userExtractor(stringUser);
                 Position position = positionExtractor(stringUser.substring(stringUser.indexOf('[')+1, stringUser.indexOf(']')));
 
-                user.setPosition(position);
-
-                userList.add(user);
+                if (user != null && position != null) {
+                    user.setPosition(position);
+                    userList.add(user);
+                }
             });
         }
 
@@ -42,33 +44,41 @@ public class StringParser {
         Scanner strScanner = new Scanner(msg);
         strScanner.useDelimiter(" ");
 
-        String username = strScanner.next();
-        double distance = strScanner.nextDouble();
-        int isPrivate = strScanner.nextInt();
+        try {
+            String username = strScanner.next();
+            double distance = strScanner.nextDouble();
+            int isPrivate = strScanner.nextInt();
 
-        return new User(username, distance, isPrivate == 1);
+            return new User(username, distance, isPrivate == 1);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     private static Position positionExtractor(String msg) {
         Scanner strScanner = new Scanner(msg);
         strScanner.useDelimiter(";");
 
-        double lat = strScanner.nextDouble();
-        double log = strScanner.nextDouble();
-        String address = strScanner.next();
-        String locality = strScanner.next();
-        String zipCode = strScanner.next();
-        String countryName = strScanner.next();
-        String countryCode = strScanner.next();
+        try {
+            double lat = strScanner.nextDouble();
+            double log = strScanner.nextDouble();
+            String address = strScanner.next();
+            String locality = strScanner.next();
+            String zipCode = strScanner.next();
+            String countryName = strScanner.next();
+            String countryCode = strScanner.next();
 
-        return new Position.Builder()
-                .latitude(lat)
-                .longitude(log)
-                .addressLine(address)
-                .locality(locality)
-                .postalCode(zipCode)
-                .countryName(countryName)
-                .countryCode(countryCode)
-                .build();
+            return new Position.Builder()
+                    .latitude(lat)
+                    .longitude(log)
+                    .addressLine(address)
+                    .locality(locality)
+                    .postalCode(zipCode)
+                    .countryName(countryName)
+                    .countryCode(countryCode)
+                    .build();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 }
