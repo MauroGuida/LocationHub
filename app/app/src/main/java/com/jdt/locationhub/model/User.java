@@ -15,6 +15,12 @@ public class User {
         this.position = position;
     }
 
+    public User(String username, double distance, boolean privacy) {
+        this.username = username;
+        this.distance = distance;
+        this.privacy = privacy;
+    }
+
     public String getUsername() {
         return username;
     }
