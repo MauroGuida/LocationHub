@@ -2,7 +2,6 @@
 #define __SERVER_H__
 
 #include <netinet/in.h>
-#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
@@ -11,6 +10,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <pthread.h>
+
+#include <sys/select.h>
+#include <sys/time.h>
 
 #include "../logger/logger.h"
 #include "../avl/avl.h"

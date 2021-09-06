@@ -97,6 +97,8 @@ void *handle_client(void *arg)
     int n = 0;
     client_request_t req;
     char *nickname = NULL;
+    struct timeval timeout;
+    fd_set read_fds;
 
     targs = (thread_args_t *)arg;
     server = targs->server;
@@ -109,47 +111,55 @@ void *handle_client(void *arg)
 
     for (;;)
     {
-        n = read(client_sockfd, buf, BUF_SIZE);
+        timeout.tv_sec = 15;
+        timeout.tv_usec = 0;
+        
+        FD_ZERO(&read_fds);
+        FD_SET(client_sockfd, &read_fds);
 
-        if (n == 0 || (n == 1 && errno == ECONNRESET))
+        // n = read(client_sockfd, buf, BUF_SIZE);
+        if (select(client_sockfd + 1, &read_fds, NULL, NULL, &timeout) > 0)
+        {
+            n = read(client_sockfd, buf, BUF_SIZE);
+            if (n != -1)
+            {
+                buf[n] = '\0';
+                
+                req = extract_request(buf);
+
+                switch (req)
+                {
+                case SIGN_UP:
+                    log_print(server->logger, LOG_SIGN_UP, client_ip_addr, client_port_num);
+                    sign_up(server, &nickname, buf, client_sockfd);
+                    break;
+                
+                case GET_LOCATIONS:
+                    log_print(server->logger, LOG_GET_LOCATIONS, client_ip_addr, client_port_num);
+                    send_locations_to_client(server, nickname, client_sockfd);
+                    break;
+
+                case SEND_LOCATION:
+                    log_print(server->logger, LOG_SEND_LOCATION, client_ip_addr, client_port_num);
+                    set_client_location(server, nickname, buf, client_sockfd);
+                    break;
+                
+                case SET_PRIVACY:
+                    log_print(server->logger, LOG_SET_PRIVACY, client_ip_addr, client_port_num);
+                    set_client_privacy(server, nickname, buf, client_sockfd);
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+        else 
         {
             log_print(server->logger, LOG_DISCONNECTION, client_ip_addr, client_port_num);
             avl_remove(server->avl, nickname);
             free(nickname);
             break;
-        }
-
-        if (n != 1)
-        {
-            buf[n] = '\0';
-            
-            req = extract_request(buf);
-
-            switch (req)
-            {
-            case SIGN_UP:
-                log_print(server->logger, LOG_SIGN_UP, client_ip_addr, client_port_num);
-                sign_up(server, &nickname, buf, client_sockfd);
-                break;
-            
-            case GET_LOCATIONS:
-                log_print(server->logger, LOG_GET_LOCATIONS, client_ip_addr, client_port_num);
-                send_locations_to_client(server, nickname, client_sockfd);
-                break;
-
-            case SEND_LOCATION:
-                log_print(server->logger, LOG_SEND_LOCATION, client_ip_addr, client_port_num);
-                set_client_location(server, nickname, buf, client_sockfd);
-                break;
-            
-            case SET_PRIVACY:
-                log_print(server->logger, LOG_SET_PRIVACY, client_ip_addr, client_port_num);
-                set_client_privacy(server, nickname, buf, client_sockfd);
-                break;
-
-            default:
-                break;
-            }
         }
     }
 
@@ -248,35 +258,6 @@ int server_accept(server_t *server)
             fprintf(stderr, "Failed to accept new client.\n");
             return err;
         }
-
-        if ((err = setsockopt(client_sockfd, SOL_SOCKET, SO_KEEPALIVE, &option, sizeof(int))) == -1)
-        {
-            perror("setsockopt");
-            fprintf(stderr, "Failed to set SO_KEEPALIVE flag.\n");
-            return err;
-        }
-
-        if ((err = setsockopt(client_sockfd, IPPROTO_TCP, TCP_KEEPIDLE, &option, sizeof(int))) == -1)
-        {
-            perror("setsockopt");
-            fprintf(stderr, "Failed to set TCP_KEEPIDLE flag.\n");
-            return err;
-        }
-
-        if ((err = setsockopt(client_sockfd, IPPROTO_TCP, TCP_KEEPINTVL, &option, sizeof(int))) == -1)
-        {
-            perror("setsockopt");
-            fprintf(stderr, "Failed to set TCP_KEEPINTVL flag.\n");
-            return err;
-        }
-
-        if ((err = setsockopt(client_sockfd, IPPROTO_TCP, TCP_KEEPCNT, &maxpkt, sizeof(int))) == -1)
-        {
-            perror("setsockopt");
-            fprintf(stderr, "Failed to set TCP_KEEPCNT flag.\n");
-            return err;
-        }
-
 
         targs = thread_args_create(server, client_sockfd, &client_sockaddr);
 
