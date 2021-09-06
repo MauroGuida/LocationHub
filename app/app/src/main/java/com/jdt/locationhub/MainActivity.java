@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     private void fetchOtherClientsLocation() {
         try {
             mainViewModel.updateOtherClientsLocation();
-        } catch (NoInternetConnectionException e) {
+        } catch (NoInternetConnectionException | ServerResponseException e) {
             showNetworkErrorDialog();
         }
     }

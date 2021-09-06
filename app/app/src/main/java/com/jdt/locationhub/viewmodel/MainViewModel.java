@@ -56,7 +56,7 @@ public class MainViewModel extends ViewModel {
 
     //-----------------------------------------------------------------------------------\\
 
-    public void updateOtherClientsLocation() throws NoInternetConnectionException {
+    public void updateOtherClientsLocation() throws NoInternetConnectionException, ServerResponseException {
         List<User> users = serverSocket.getAllConnectedUsers();
 
         users.removeIf(u -> u.getDistance() > clientsDiscoveryRange.getValue().get(1) || u.getDistance() < clientsDiscoveryRange.getValue().get(0));
@@ -73,7 +73,7 @@ public class MainViewModel extends ViewModel {
 
         try {
             updateOtherClientsLocation();
-        } catch (NoInternetConnectionException ignored) {}
+        } catch (NoInternetConnectionException | ServerResponseException ignored) {}
     }
 
     public LiveData<List<Float>> getClientsDiscoveryRange() {

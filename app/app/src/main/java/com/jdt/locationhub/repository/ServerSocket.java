@@ -91,9 +91,14 @@ public class ServerSocket {
             bufferedWriter.close();
     }
 
-    private void updateUsersLocation() throws IOException {
+    private void updateUsersLocation() throws IOException, ServerResponseException {
+        String response = sendMessage("GET_LOCATIONS ");
+
+        if (response.equals(ERROR_RESPONSE))
+            throw new ServerResponseException();
+
         userSet.clear();
-        userSet.addAll(StringParser.usersParser(sendMessage("GET_LOCATIONS ")));
+        userSet.addAll(StringParser.usersParser(response));
     }
 
     //-----------------------------------------------------------------------------------\\
@@ -117,7 +122,7 @@ public class ServerSocket {
         }
     }
 
-    public List<User> getAllConnectedUsers() throws NoInternetConnectionException {
+    public List<User> getAllConnectedUsers() throws NoInternetConnectionException, ServerResponseException {
         try {
             updateUsersLocation();
         } catch (IOException e) {
