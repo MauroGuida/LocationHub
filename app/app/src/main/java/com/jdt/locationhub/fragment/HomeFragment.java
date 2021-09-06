@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.card.MaterialCardView;
 import com.jdt.locationhub.R;
 import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
@@ -45,9 +47,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private Marker thisClientPositionMarker;
     private Map<String, Marker> clientsPositionMarkers;
 
+    private MaterialCardView locationInfoCardV;
     private TextView usernameTextV;
     private TextView locationTextV;
     private TextView addressTextV;
+
+    //-----------------------------------------------------------------------------------\\
 
     /**
      * Use this factory method to create a new instance of
@@ -74,13 +79,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         mapView = v.findViewById(R.id.worldMap_HomeFragment);
+        locationInfoCardV = v.findViewById(R.id.locationInfo_CardV_FragmentHome);
         usernameTextV = v.findViewById(R.id.username_TextV_FragmentHome);
         locationTextV = v.findViewById(R.id.location_TextV_FragmentHome);
         addressTextV = v.findViewById(R.id.address_TextV_FragmentHome);
 
-        usernameTextV.setText(mainViewModel.getUsername());
+        locationInfoCardV.setVisibility(View.GONE);
 
-        mainViewModel.getThisClientPosition().observe(getViewLifecycleOwner(), this::updateUserPositionMarker);
+        mainViewModel.getThisClientPosition().observe(getViewLifecycleOwner(), this::updateThisClientPositionMarker);
 
         mapView.onCreate(null);
         mapView.getMapAsync(this);
@@ -101,6 +107,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         initMap();
     }
 
+    //-----------------------------------------------------------------------------------\\
+
     private void initMap() {
         //Create an invisible Azure marker for client position
         thisClientPositionMarker = map.addMarker(new MarkerOptions()
@@ -110,7 +118,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 .visible(false));
 
         //Fetch the last known position, if available, and set the Client Azure marker
-        updateUserPositionMarker(mainViewModel.getThisClientPosition().getValue());
+        updateThisClientPositionMarker(mainViewModel.getThisClientPosition().getValue());
 
         //Create a Map that contains a marker for each connected client
         clientsPositionMarkers = new HashMap<>();
@@ -129,25 +137,74 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     removeMapPointByName(markerName);
             }
         });
+
+        //Shows client location information on Marker click
+        map.setOnMarkerClickListener(marker -> {
+            showMarkerInfo(marker);
+            return true;
+        });
     }
 
-    private void updateUserPositionMarker(Position position) {
-        //Updates location information on the screen if available
-        if (position != null && map != null && thisClientPositionMarker != null) {
-            locationTextV.setText(getResources().getString(R.string.LatLon, String.valueOf(position.getLatitude()), String.valueOf(position.getLongitude())));
-            addressTextV.setText(position.getAddressLine());
 
-            //Refresh client position on the map
+    //TODO A Better implementation of this shit
+    //---------------- MHEEEEEE
+    private final Observer<Position> thisUserPositionObserver = position -> {
+        locationTextV.setText(getResources().getString(R.string.LatLon,
+                String.valueOf(position.getLatitude()),
+                String.valueOf(position.getLongitude())));
+        addressTextV.setText(position.getAddressLine());
+    };
+
+    private String selectedUserUsername;
+    private final Observer<List<User>> selectedUserPositionObserver = users -> users.forEach(user -> {
+        if (user.getUsername().equals(selectedUserUsername)) {
+            locationTextV.setText(getResources().getString(R.string.LatLon,
+                    String.valueOf(user.getPosition().getLatitude()),
+                    String.valueOf(user.getPosition().getLatitude())));
+            addressTextV.setText(user.getPosition().getAddressLine());
+        }
+    });
+
+
+    private void showMarkerInfo(Marker m) {
+        if (locationInfoCardV.getVisibility() == View.VISIBLE) {
+            locationInfoCardV.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up));
+            locationInfoCardV.setVisibility(View.GONE);
+
+            mainViewModel.getThisClientPosition().removeObserver(thisUserPositionObserver);
+            mainViewModel.getAllClientsPosition().removeObserver(selectedUserPositionObserver);
+        } else {
+            if (m.equals(thisClientPositionMarker)) {
+                usernameTextV.setText(mainViewModel.getUsername());
+                mainViewModel.getThisClientPosition().observe(getViewLifecycleOwner(), thisUserPositionObserver);
+            } else {
+                usernameTextV.setText(m.getTitle());
+                selectedUserUsername = m.getTitle();
+                mainViewModel.getAllClientsPosition().observe(getViewLifecycleOwner(), selectedUserPositionObserver);
+            }
+
+            locationInfoCardV.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down));
+            locationInfoCardV.setVisibility(View.VISIBLE);
+        }
+    }
+    //---------------- THE MHEEEEND
+
+    private void updateThisClientPositionMarker(Position position) {
+        //Refresh client marker position on the map, if available
+        if (position != null && map != null && thisClientPositionMarker != null) {
             thisClientPositionMarker.setPosition(new LatLng(position.getLatitude(), position.getLongitude()));
+
+            //Center camera on Client location
             if (!thisClientPositionMarker.isVisible()) {
                 thisClientPositionMarker.setVisible(true);
-                //Center the camera on the Client position
                 map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(position.getLatitude(), position.getLongitude())));
             }
         }
     }
 
-    //Set an user Red Mark on the map or replace his position if already exists
+    //-----------------------------------------------------------------------------------\\
+
+    //Set an user Red Mark on the map or replace his position if it already exists
     public void setOnMapPoint(LatLng point, String name, boolean center) {
         if (map == null || (point.latitude == 0 && point.longitude == 0)) return;
 
