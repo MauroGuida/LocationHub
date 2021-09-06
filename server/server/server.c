@@ -121,7 +121,7 @@ void *handle_client(void *arg)
         if (select(client_sockfd + 1, &read_fds, NULL, NULL, &timeout) > 0)
         {
             n = read(client_sockfd, buf, BUF_SIZE);
-            if (n != -1)
+            if (n > 0)
             {
                 buf[n] = '\0';
                 
@@ -152,6 +152,13 @@ void *handle_client(void *arg)
                 default:
                     break;
                 }
+            }
+            else if (n == 0 || n == -1)
+            {
+                log_print(server->logger, LOG_DISCONNECTION, client_ip_addr, client_port_num);
+                avl_remove(server->avl, nickname);
+                free(nickname);
+                break;
             }
         }
         else 
