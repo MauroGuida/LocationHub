@@ -94,7 +94,7 @@ public class ServerSocket {
     private void updateUsersLocation() throws IOException, ServerResponseException {
         String response = sendMessage("GET_LOCATIONS ");
 
-        if (!response.startsWith(OK_RESPONSE))
+        if (response == null || response.isEmpty() || !response.startsWith(OK_RESPONSE))
             throw new ServerResponseException();
 
         userSet.clear();
@@ -106,7 +106,7 @@ public class ServerSocket {
     public void login(String username) throws UsernameAlreadyInUseException, IOException {
         String response = sendMessage("SIGN_UP " + username);
 
-        if (!response.equals(OK_RESPONSE))
+        if (response == null || response.isEmpty() || !response.equals(OK_RESPONSE))
             throw new UsernameAlreadyInUseException();
     }
 
@@ -114,7 +114,7 @@ public class ServerSocket {
         try {
             String response = sendMessage("SEND_LOCATION " + p.serialize());
 
-            if (!response.equals(OK_RESPONSE))
+            if (response == null || response.isEmpty() || !response.equals(OK_RESPONSE))
                 throw new ServerResponseException();
 
         } catch (IOException e) {
@@ -136,7 +136,7 @@ public class ServerSocket {
         try {
             String response = sendMessage("SET_PRIVACY " + (b ? 1 : 0));
 
-            if (!response.equals(OK_RESPONSE))
+            if (response == null || response.isEmpty() || !response.equals(OK_RESPONSE))
                 throw new ServerResponseException();
 
         } catch (IOException e) {
