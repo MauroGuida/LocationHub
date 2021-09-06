@@ -194,6 +194,8 @@ node_t *node_remove(node_t *root, char *key, comparator comp)
             {
                 root->client_location = client_location_duplicate(tmp->client_location);
             }
+
+            root->is_private = tmp->is_private;
         
             root->right = node_remove(root->right, tmp->nickname, comp);
         }

@@ -155,7 +155,7 @@ void add_position(node_t *node, node_t *target, char *buf)
 
     if (node && target && buf)
     {
-        curr_position = (char *)malloc(sizeof(char) * 512);
+        curr_position = (char *)malloc(sizeof(char) * 1024);
         if (curr_position)
         {
             curr_position[0] = '\0';
