@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.jdt.locationhub.exception.NoInternetConnectionException;
+import com.jdt.locationhub.exception.ServerResponseException;
 import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.repository.ServerSocket;
@@ -81,7 +82,7 @@ public class MainViewModel extends ViewModel {
 
     //-----------------------------------------------------------------------------------\\
 
-    public void updateThisClientPosition(Address address) throws NoInternetConnectionException {
+    public void updateThisClientPosition(Address address) throws NoInternetConnectionException, ServerResponseException {
         Position position = new Position.Builder()
                 .latitude(address.getLatitude())
                 .longitude(address.getLongitude())
@@ -108,7 +109,7 @@ public class MainViewModel extends ViewModel {
 
     //-----------------------------------------------------------------------------------\\
 
-    public void setPrivacyEnabled(boolean b) {
+    public void setPrivacyEnabled(boolean b) throws ServerResponseException, NoInternetConnectionException {
         PrivacyEnabled.setValue(b);
         serverSocket.setUserPrivacy(b);
     }

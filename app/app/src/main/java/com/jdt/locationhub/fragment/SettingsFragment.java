@@ -15,6 +15,8 @@ import com.google.android.material.slider.RangeSlider;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.jdt.locationhub.R;
+import com.jdt.locationhub.exception.NoInternetConnectionException;
+import com.jdt.locationhub.exception.ServerResponseException;
 import com.jdt.locationhub.viewmodel.MainViewModel;
 
 import java.util.ArrayList;
@@ -65,7 +67,13 @@ public class SettingsFragment extends Fragment {
         rangeMinMaxTextV = v.findViewById(R.id.rangeMinMax_TextView_FragmentSettings);
 
         sharePositionSwitch.setChecked(!mainViewModel.isPrivacyEnabled().getValue());
-        sharePositionSwitch.setOnCheckedChangeListener((compoundButton, b) -> mainViewModel.setPrivacyEnabled(!b));
+        sharePositionSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            try {
+                mainViewModel.setPrivacyEnabled(!b);
+            } catch (ServerResponseException | NoInternetConnectionException e) {
+                e.printStackTrace(); //TODO a better feedback
+            }
+        });
         mainViewModel.isPrivacyEnabled().observe(getViewLifecycleOwner(), p -> sharePositionSwitch.setChecked(!p));
 
         mainViewModel.getClientsDiscoveryRange().observe(getViewLifecycleOwner(), r -> {

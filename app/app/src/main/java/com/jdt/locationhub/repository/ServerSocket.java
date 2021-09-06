@@ -3,6 +3,7 @@ package com.jdt.locationhub.repository;
 import android.os.StrictMode;
 
 import com.jdt.locationhub.exception.NoInternetConnectionException;
+import com.jdt.locationhub.exception.ServerResponseException;
 import com.jdt.locationhub.exception.UsernameAlreadyInUseException;
 import com.jdt.locationhub.model.Position;
 import com.jdt.locationhub.model.User;
@@ -29,8 +30,8 @@ public class ServerSocket {
     private static final String OK_RESPONSE = "OK";
 
     //Connection Parameters
-    private static final int SERVER_PORT = 5000;
-    private static final String SERVER_IP_ADDRESS = "192.168.178.22";
+    private static final int SERVER_PORT = 7560;
+    private static final String SERVER_IP_ADDRESS = "192.168.178.22"; //TODO AWS SERVER
 
     //Input and Output buffers
     private final Socket socket;
@@ -90,7 +91,6 @@ public class ServerSocket {
             bufferedWriter.close();
     }
 
-    //TODO Update clients informations from AWS
     private void updateUsersLocation() throws IOException {
         userSet.clear();
         userSet.addAll(StringParser.usersParser(sendMessage("GET_LOCATIONS ")));
@@ -98,18 +98,20 @@ public class ServerSocket {
 
     //-----------------------------------------------------------------------------------\\
 
-    public boolean login(String username) throws UsernameAlreadyInUseException, IOException {
+    public void login(String username) throws UsernameAlreadyInUseException, IOException {
         String response = sendMessage("SIGN_UP " + username);
 
-        if (response.equals(ERROR_RESPONSE))
+        if (!response.equals(OK_RESPONSE))
             throw new UsernameAlreadyInUseException();
-
-        return response.equals(OK_RESPONSE);
     }
 
-    public void sendClientPosition(Position p) throws NoInternetConnectionException {
+    public void sendClientPosition(Position p) throws NoInternetConnectionException, ServerResponseException {
         try {
-            sendMessage("SEND_LOCATION " + p.serialize());
+            String response = sendMessage("SEND_LOCATION " + p.serialize());
+
+            if (!response.equals(OK_RESPONSE))
+                throw new ServerResponseException();
+
         } catch (IOException e) {
             throw new NoInternetConnectionException();
         }
@@ -125,11 +127,15 @@ public class ServerSocket {
         return userSet;
     }
 
-    public void setUserPrivacy(boolean b) {
+    public void setUserPrivacy(boolean b) throws ServerResponseException, NoInternetConnectionException {
         try {
-            sendMessage("SET_PRIVACY " + (b ? 1 : 0));
+            String response = sendMessage("SET_PRIVACY " + (b ? 1 : 0));
+
+            if (!response.equals(OK_RESPONSE))
+                throw new ServerResponseException();
+
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new NoInternetConnectionException();
         }
     }
 }

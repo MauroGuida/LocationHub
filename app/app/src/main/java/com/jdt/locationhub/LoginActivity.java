@@ -49,14 +49,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private void login() {
         try {
-            if (locationPermissionGranted && loginViewModel.login(usernameEditT.getEditText().getText().toString())) {
+            if (locationPermissionGranted) {
+                loginViewModel.login(usernameEditT.getEditText().getText().toString());
                 Intent i = new Intent(this, MainActivity.class);
                 i.putExtra("USERNAME", usernameEditT.getEditText().getText().toString());
                 startActivity(i);
-            } else if (!locationPermissionGranted)
+            } else
                 Toast.makeText(this, getResources().getString(R.string.locationPermissionNotGranted), Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(this, getResources().getString(R.string.abnormalError), Toast.LENGTH_LONG).show();
         } catch (UsernameNotValidException e) {
             usernameEditT.setError(getResources().getString(R.string.usernameNotValid));
         } catch (UsernameAlreadyInUseException e) {

@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jdt.locationhub.exception.NoInternetConnectionException;
+import com.jdt.locationhub.exception.ServerResponseException;
 import com.jdt.locationhub.fragment.HomeFragment;
 import com.jdt.locationhub.fragment.PeopleFragment;
 import com.jdt.locationhub.fragment.SettingsFragment;
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Address address = new Geocoder(this).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
                 mainViewModel.updateThisClientPosition(address);
-            } catch (IOException | NoInternetConnectionException e) {
+            } catch (IOException | NoInternetConnectionException | ServerResponseException e) {
                 showNetworkErrorDialog();
             }
         });
