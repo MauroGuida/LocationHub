@@ -94,7 +94,7 @@ public class ServerSocket {
     private void updateUsersLocation() throws IOException, ServerResponseException {
         String response = sendMessage("GET_LOCATIONS ");
 
-        if (response.equals(ERROR_RESPONSE))
+        if (!response.startsWith(OK_RESPONSE))
             throw new ServerResponseException();
 
         userSet.clear();
