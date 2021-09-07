@@ -65,6 +65,9 @@ public class ServerSocket {
 
     private ServerSocket() throws IOException {
         socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
+        socket.setSoTimeout(15*1000);
+        socket.setKeepAlive(true);
+
         inputStreamReader = new InputStreamReader(socket.getInputStream());
         outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
 
