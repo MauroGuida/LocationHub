@@ -104,13 +104,18 @@ node_t *node_insert(node_t *root, node_t *new_node, comparator comp)
     {
         return new_node;
     }
-    else if (comp(new_node->nickname, root->nickname) < 0)
+
+    if (comp(new_node->nickname, root->nickname) < 0)
     {
         root->left = node_insert(root->left, new_node, comp);
     }
     else if (comp(new_node->nickname, root->nickname) > 0)
     {
         root->right = node_insert(root->right, new_node, comp);
+    }
+    else
+    {
+        return new_node;
     }
 
     root->height = 1 + max(height(root->left), height(root->right));
@@ -151,7 +156,8 @@ node_t *node_remove(node_t *root, char *key, comparator comp)
     {
         return root;
     }
-    else if (comp(root->nickname, key) > 0)
+
+    if (comp(root->nickname, key) > 0)
     {
         root->left = node_remove(root->left, key, comp);
     }
@@ -285,8 +291,12 @@ void avl_destroy(avl_t *avl)
 
 bool avl_insert(avl_t *avl, char *nickname)
 {
+    bool result = false;
+
     if (avl && nickname)
     {
+        pthread_mutex_lock(&avl->lock);
+
         node_t *target = node_find(avl->root, avl->comp, nickname);
         if (!target)
         {
@@ -298,16 +308,16 @@ bool avl_insert(avl_t *avl, char *nickname)
                 new_node->client_location = NULL;
                 new_node->is_private = true;
 
-                pthread_mutex_lock(&avl->lock);
                 avl->root = node_insert(avl->root, new_node, avl->comp);
-                pthread_mutex_unlock(&avl->lock);
                 
-                return true;
+                result = true;
             }
         }
+
+        pthread_mutex_unlock(&avl->lock);
     }
 
-    return false;
+    return result;
 }
 
 void avl_update_location(avl_t *avl, char *nickname, client_location_t *client_location)
