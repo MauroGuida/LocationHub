@@ -184,10 +184,10 @@ node_t *node_remove(node_t *root, char *key, comparator comp)
         {
             node_t *tmp = node_min_value(root->right);
 
-            if (root->nickname) free(root->nickname);
+            free(root->nickname);
             root->nickname = strdup(tmp->nickname);
 
-            if (root->client_location) client_location_destroy(root->client_location);
+            client_location_destroy(root->client_location);
             root->client_location = client_location_duplicate(tmp->client_location);
 
             root->is_private = tmp->is_private;
