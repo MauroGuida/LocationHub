@@ -5,10 +5,13 @@ import com.jdt.locationhub.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class StringParser {
+    private static final Locale LOCAL_TYPE = Locale.UK;
+
     public static List<User> usersParser(String message) {
         List<User> userList = new ArrayList<>();
 
@@ -31,6 +34,7 @@ public class StringParser {
 
     private static List<String> userStringListExtractor(String msg) {
         Scanner strScanner = new Scanner(msg);
+        strScanner.useLocale(LOCAL_TYPE);
         strScanner.useDelimiter("@");
 
         List<String> users = new ArrayList<>();
@@ -42,6 +46,7 @@ public class StringParser {
 
     private static User userExtractor(String msg) {
         Scanner strScanner = new Scanner(msg);
+        strScanner.useLocale(LOCAL_TYPE);
         strScanner.useDelimiter(" ");
 
         try {
@@ -57,6 +62,7 @@ public class StringParser {
 
     private static Position positionExtractor(String msg) {
         Scanner strScanner = new Scanner(msg);
+        strScanner.useLocale(LOCAL_TYPE);
         strScanner.useDelimiter(";");
 
         try {
