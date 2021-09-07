@@ -49,16 +49,12 @@ node_t *right_rotate(node_t *node)
 
 node_t *node_min_value(node_t *node)
 {
-    if (!node) return node;
-
-    node_t *curr = node;
-
-    while (curr->left)
+    while (node->left)
     {
-        curr = curr->left;
+        node = node->left;
     }
-    
-    return curr;
+
+    return node;
 }
 
 void tree_free(node_t *root)
@@ -115,7 +111,7 @@ node_t *node_insert(node_t *root, node_t *new_node, comparator comp)
     }
     else
     {
-        return new_node;
+        return root;
     }
 
     root->height = 1 + max(height(root->left), height(root->right));
@@ -167,42 +163,35 @@ node_t *node_remove(node_t *root, char *key, comparator comp)
     }
     else
     {
-        if (!root->left || !root->right)
+        if (!root->right && !root->left)
         {
-            node_t *tmp = (root->left) ? root->left : root->right;
-            if (!tmp)
-            {
-                tmp = root;
-                root = NULL;
-            }
-            else
-            {
-                *root = *tmp;
-            }
+            node_destroy(root);
+            root = NULL;
+        }
+        else if (root->left && !root->right)
+        {
+            node_t *tmp = root->left;
+            root = root->left;
+            node_destroy(tmp);
+        }        
+        else if (root->right && !root->left)
+        {
+            node_t *tmp = root->right;
+            root = root->right;
             node_destroy(tmp);
         }
         else
         {
             node_t *tmp = node_min_value(root->right);
-            
-            free(root->nickname); 
-            root->nickname = NULL;
 
-            client_location_destroy(root->client_location); 
-            root->client_location = NULL;
+            if (root->nickname) free(root->nickname);
+            root->nickname = strdup(tmp->nickname);
 
-            if (tmp->nickname)
-            {
-                root->nickname = strdup(tmp->nickname);
-            }
-
-            if (tmp->client_location)
-            {
-                root->client_location = client_location_duplicate(tmp->client_location);
-            }
+            if (root->client_location) client_location_destroy(root->client_location);
+            root->client_location = client_location_duplicate(tmp->client_location);
 
             root->is_private = tmp->is_private;
-        
+
             root->right = node_remove(root->right, tmp->nickname, comp);
         }
     }
