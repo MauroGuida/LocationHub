@@ -31,6 +31,7 @@ import com.jdt.locationhub.fragment.SettingsFragment;
 import com.jdt.locationhub.viewmodel.MainViewModel;
 
 import java.io.IOException;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         }).addOnSuccessListener(location -> {
             //Retrieve location information
             try {
-                Address address = new Geocoder(this).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
+                Address address = new Geocoder(this, Locale.UK).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
                 mainViewModel.updateThisClientPosition(address);
             } catch (IOException | NoInternetConnectionException | ServerResponseException e) {
                 showNetworkErrorDialog();
