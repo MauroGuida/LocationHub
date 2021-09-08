@@ -55,7 +55,7 @@ node_t *balance(node_t *node)
     }
     else if (height(node->right) - height(node->left) == 2)
     {
-        if ( height(node->right->left) > height(node->right->right))
+        if (height(node->right->left) > height(node->right->right))
         {
             node->right = rotate_right(node->right);
         }
@@ -111,14 +111,13 @@ void dealloc_tree(node_t *root)
     }
 }
 
-
-node_t *node_create(void)
+node_t *node_create(char *key)
 {
     node_t *node = (node_t *)malloc(sizeof(node_t));
 
     if (node)
     {
-        node->nickname        = NULL;
+        node->nickname        = strdup(key);
         node->client_location = NULL;
         node->is_private      = true;
 
@@ -142,12 +141,7 @@ void node_destroy(node_t *node)
 
 node_t *node_insert(node_t *root, char *key, comparator comp)
 {
-    if (!root)
-    {
-        node_t *new_node = node_create();
-        new_node->nickname = strdup(key);
-        return new_node;
-    }
+    if (!root) return node_create(key);
 
     if (comp(key, root->nickname) < 0)
     {
@@ -259,7 +253,7 @@ void avl_update_location(avl_t *avl, char *key, client_location_t *client_locati
     }
 }
 
-void avl_update_privacy(avl_t *avl, char *key, bool privacy)
+void avl_update_privacy(avl_t *avl, char *key, bool is_private)
 {
     node_t *target = NULL;
 
@@ -270,7 +264,7 @@ void avl_update_privacy(avl_t *avl, char *key, bool privacy)
         target = search(avl->root, key, avl->comp);
         if (target)
         {
-            target->is_private = privacy;
+            target->is_private = is_private;
         }
 
         pthread_mutex_unlock(&avl->lock);

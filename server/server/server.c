@@ -254,8 +254,6 @@ int server_accept(server_t *server)
     socklen_t client_socklen = sizeof(struct sockaddr_in);
     pthread_t tid;
     thread_args_t *targs;
-    int option = 1;
-    int maxpkt = 10;
 
     for (;;)
     {
