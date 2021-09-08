@@ -32,9 +32,9 @@ typedef struct avl_t avl_t;
 
 node_t *node_create(void);
 void node_destroy(node_t *);
-node_t *node_insert(node_t *, node_t *, comparator);
+node_t *node_insert(node_t *, char*, comparator);
 node_t *node_remove(node_t *, char *, comparator);
-node_t *node_find(node_t *, comparator, char *);
+node_t *search(node_t *, char *, comparator);
 
 avl_t *avl_create(void);
 void avl_destroy(avl_t *);
