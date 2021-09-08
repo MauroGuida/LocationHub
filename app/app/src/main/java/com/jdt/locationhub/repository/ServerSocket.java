@@ -95,7 +95,7 @@ public class ServerSocket {
     }
 
     private void updateUsersLocation() throws IOException, ServerResponseException {
-        String response = sendMessage("GET_LOCATIONS");
+        String response = sendMessage("GET_LOCATIONS ");
 
         if (response == null || response.isEmpty() || !response.startsWith(OK_RESPONSE))
             throw new ServerResponseException();
@@ -115,7 +115,7 @@ public class ServerSocket {
 
     public void sendClientPosition(Position p) throws NoInternetConnectionException, ServerResponseException {
         try {
-            String response = sendMessage("SEND_LOCATION " + p.serialize());
+            String response = sendMessage("SEND_LOCATION " + p.getLatitude() + " " + p.getLongitude());
 
             if (response == null || response.isEmpty() || !response.equals(OK_RESPONSE))
                 throw new ServerResponseException();
