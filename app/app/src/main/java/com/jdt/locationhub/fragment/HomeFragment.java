@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -136,7 +137,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     removeMapPointByName(user.getUsername());
             });
 
-            clientsPositionMarkers.entrySet().removeIf(e -> users.stream().noneMatch(u -> u.getUsername().equals(e.getKey())));
+            Optional<Map.Entry<String, Marker>> optionalEntry = clientsPositionMarkers.entrySet().stream().filter(e -> users.stream().noneMatch(u -> u.getUsername().equals(e.getKey()))).findFirst();
+            if (optionalEntry.isPresent()) {
+                optionalEntry.get().getValue().remove();
+                clientsPositionMarkers.remove(optionalEntry.get().getKey());
+            }
+
+            //clientsPositionMarkers.entrySet().removeIf(e -> users.stream().noneMatch(u -> u.getUsername().equals(e.getKey())));
         });
 
         //Shows client location information on Marker click
