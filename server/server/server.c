@@ -151,6 +151,8 @@ void *handle_client(void *arg)
 
                 default:
                     log_print(server->logger, LOG_INVALID_MSG, client_ip_addr, client_port_num);
+                    char *msg = "ERR\n";
+                    write(client_sockfd, msg, strlen(msg));
                     break;
                 }
             }

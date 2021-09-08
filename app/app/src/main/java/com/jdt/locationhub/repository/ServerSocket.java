@@ -31,7 +31,7 @@ public class ServerSocket {
 
     //Connection Parameters
     private static final int SERVER_PORT = 7560;
-    private static final String SERVER_IP_ADDRESS = "192.168.178.22"; //TODO AWS SERVER
+    private static final String SERVER_IP_ADDRESS = "93.42.254.55"; //TODO AWS SERVER
 
     //Input and Output buffers
     private final Socket socket;
