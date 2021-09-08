@@ -158,8 +158,10 @@ public class MainActivity extends AppCompatActivity {
         }).addOnSuccessListener(location -> {
             //Retrieve location information
             try {
-                Address address = new Geocoder(this, Locale.UK).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
-                mainViewModel.updateThisClientPosition(address);
+                if (location.getLatitude() != 0 && location.getLongitude() != 0) {
+                    Address address = new Geocoder(this, Locale.UK).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
+                    mainViewModel.updateThisClientPosition(address);
+                }
             } catch (IOException | NoInternetConnectionException | ServerResponseException e) {
                 showNetworkErrorDialog();
             }
