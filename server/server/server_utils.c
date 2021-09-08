@@ -178,7 +178,7 @@ void add_position(node_t *node, node_t *target, char *buf)
     }
 }
 
-char *avl_serialize(avl_t *avl, char *nickname)
+char *avl_serialize(avl_t *avl, char *key)
 {
     char *buf = NULL;
     node_t *target = NULL;
@@ -193,7 +193,7 @@ char *avl_serialize(avl_t *avl, char *nickname)
             buf[0] = '\0';
             strcat(buf, "OK - {");
             
-            target = node_find(avl->root, avl->comp, nickname);
+            target = search(avl->root, key, avl->comp);
             if (target)
             {
                 tree_func_apply(avl->root, target, buf, add_position);

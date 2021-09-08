@@ -55,7 +55,6 @@ void sign_up(server_t *server, char **nickname, char *str, int client_sockfd)
 void send_locations_to_client(server_t *server, char *nickname, int client_sockfd)
 {
     char *buf = avl_serialize(server->avl, nickname);
-    //printf("%s\n", buf);
     if (buf)
     {
         write(client_sockfd, buf, strlen(buf));

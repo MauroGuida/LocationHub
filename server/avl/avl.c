@@ -7,65 +7,110 @@ int max(int a, int b)
 
 int height(node_t *node)
 {
-    if (!node) return 0;
-
-    return node->height;
+    return node ? node->height : 0;
 }
 
-int get_balance(node_t *node)
+void recalculate_height(node_t *node)
 {
-    if (!node) return 0;
-
-    return height(node->left) - height(node->right);
+    node->height = 1 + max(height(node->left), height(node->right));
 }
 
-node_t *left_rotate(node_t *node)
+node_t *rotate_left(node_t *node)
 {
     node_t *child = node->right;
-    node_t *tmp = child->left;
-
+    
+    node->right = child->left;
     child->left = node;
-    node->right = tmp;
 
-    node->height = 1 + max(height(node->left), height(node->right));
-    child->height = 1 + max(height(child->left), height(child->right));
+    recalculate_height(node);
+    recalculate_height(child);
 
     return child;
 }
 
-node_t *right_rotate(node_t *node)
+node_t *rotate_right(node_t *node)
 {
     node_t *child = node->left;
-    node_t *tmp = child->right;
-
+    
+    node->left = child->right;
     child->right = node;
-    node->left = tmp;
 
-    node->height = 1 + max(height(node->left), height(node->right));
-    child->height = 1 + max(height(child->left), height(child->right));
+    recalculate_height(node);
+    recalculate_height(child);
 
     return child;
 }
 
-node_t *node_min_value(node_t *node)
+node_t *balance(node_t *node)
 {
-    while (node->left)
+    recalculate_height(node);
+
+    if (height(node->left) - height(node->right) == 2)
     {
-        node = node->left;
+        if (height(node->left->right) > height(node->left->left))
+        {
+            node->left = rotate_left(node->left);
+        }
+        return rotate_right(node);
+    }
+    else if (height(node->right) - height(node->left) == 2)
+    {
+        if ( height(node->right->left) > height(node->right->right))
+        {
+            node->right = rotate_right(node->right);
+        }
+        return rotate_left(node);
     }
 
     return node;
 }
 
-void tree_free(node_t *root)
+node_t *find_min(node_t *node)
+{
+    while (node->left)
+    {
+        node = node->left;
+    }
+    
+    return node;
+}
+
+node_t *remove_min(node_t *node)
+{
+    if (!node->left) return node->right;
+
+    node->left = remove_min(node->left);
+    return balance(node);
+}
+
+node_t *search(node_t *root, char *key, comparator comp)
+{
+    if (!root) return NULL;
+
+    if (comp(key, root->nickname) == 0)
+    {
+        return root;
+    }
+    else if (comp(key, root->nickname) > 0)
+    {
+        return search(root->right, key, comp);
+    }
+    else
+    {
+        return search(root->left, key, comp);
+    }
+}
+
+void dealloc_tree(node_t *root)
 {
     if (root)
     {
-        tree_free(root->left);
-        tree_free(root->right);
+        dealloc_tree(root->left);
+        dealloc_tree(root->right);
         node_destroy(root);
     }
 }
+
 
 node_t *node_create(void)
 {
@@ -75,7 +120,8 @@ node_t *node_create(void)
     {
         node->nickname        = NULL;
         node->client_location = NULL;
-        node->is_private      = false;
+        node->is_private      = true;
+
         node->height          = 1;
         node->left            = NULL;
         node->right           = NULL;
@@ -94,161 +140,56 @@ void node_destroy(node_t *node)
     }
 }
 
-node_t *node_insert(node_t *root, node_t *new_node, comparator comp)
+node_t *node_insert(node_t *root, char *key, comparator comp)
 {
     if (!root)
     {
+        node_t *new_node = node_create();
+        new_node->nickname = strdup(key);
         return new_node;
     }
 
-    if (comp(new_node->nickname, root->nickname) < 0)
+    if (comp(key, root->nickname) < 0)
     {
-        root->left = node_insert(root->left, new_node, comp);
+        root->left = node_insert(root->left, key, comp);
     }
-    else if (comp(new_node->nickname, root->nickname) > 0)
+    else if (comp(key, root->nickname) > 0)
     {
-        root->right = node_insert(root->right, new_node, comp);
-    }
-    else
-    {
-        return root;
+        root->right = node_insert(root->right, key, comp);
     }
 
-    root->height = 1 + max(height(root->left), height(root->right));
-    int balance = get_balance(root);        
-
-    // Left left case
-    if (balance > 1 && comp(new_node->nickname, root->left->nickname) < 0)
-    {
-        return right_rotate(root);
-    }
-
-    // Right right case
-    if (balance < -1 && comp(new_node->nickname, root->right->nickname) > 0)
-    {
-        return left_rotate(root);
-    }
-
-    // Left right case
-    if (balance > 1 && comp(new_node->nickname, root->left->nickname) > 0)
-    {
-        root->left = left_rotate(root->left);
-        return right_rotate(root);
-    }
-
-    // Right left case
-    if (balance < -1 && comp(new_node->nickname, root->right->nickname) < 0)
-    {
-        root->right = right_rotate(root->right);
-        return left_rotate(root);
-    }
-
-    return root;
+    return balance(root);
 }
 
 node_t *node_remove(node_t *root, char *key, comparator comp)
 {
-    if (!root)
-    {
-        return root;
-    }
+    if (!root) return NULL;
 
-    if (comp(root->nickname, key) > 0)
+    if (comp(key, root->nickname) < 0)
     {
         root->left = node_remove(root->left, key, comp);
     }
-    else if (comp(root->nickname, key) < 0)
+    else if (comp(key, root->nickname) > 0)
     {
         root->right = node_remove(root->right, key, comp);
     }
     else
     {
-        if (!root->right && !root->left)
-        {
-            node_destroy(root);
-            root = NULL;
-        }
-        else if (root->left && !root->right)
-        {
-            node_t *tmp = root->left;
-            root = root->left;
-            node_destroy(tmp);
-        }        
-        else if (root->right && !root->left)
-        {
-            node_t *tmp = root->right;
-            root = root->right;
-            node_destroy(tmp);
-        }
-        else
-        {
-            node_t *tmp = node_min_value(root->right);
+        node_t *left = root->left;
+        node_t *right = root->right;
 
-            free(root->nickname);
-            root->nickname = strdup(tmp->nickname);
+        node_destroy(root);
 
-            client_location_destroy(root->client_location);
-            root->client_location = client_location_duplicate(tmp->client_location);
+        if (!right) return left;
 
-            root->is_private = tmp->is_private;
+        node_t *min = find_min(right);
+        min->right = remove_min(right);
+        min->left = left;
 
-            root->right = node_remove(root->right, tmp->nickname, comp);
-        }
+        return balance(min);
     }
 
-    if (!root) return root;
-
-    root->height = 1 + max(height(root->left), height(root->right));
-    int balance = get_balance(root);
-
-    // Left Left Case
-    if (balance > 1 && get_balance(root->left) >= 0)
-    {
-        return right_rotate(root);
-    }
- 
-    // Left Right Case
-    if (balance > 1 && get_balance(root->left) < 0)
-    {
-        root->left = left_rotate(root->left);
-        return right_rotate(root);
-    }
- 
-    // Right Right Case
-    if (balance < -1 && get_balance(root->right) <= 0)
-    {
-        return left_rotate(root);
-    }
- 
-    // Right Left Case
-    if (balance < -1 && get_balance(root->right) > 0)
-    {
-        root->right = right_rotate(root->right);
-        return left_rotate(root);
-    }
- 
-    return root;
-}
-
-node_t *node_find(node_t *root, comparator comp, char *key)
-{
-    if (root && key)
-    {
-        if (comp(key, root->nickname) == 0)
-        {
-            return root;
-        }
-        else if (comp(key, root->nickname) > 0)
-        {
-            return node_find(root->right, comp, key);
-        }
-        else
-        {
-            return node_find(root->left, comp, key);
-        }
-    }
-
-    return NULL;
+    return balance(root);
 }
 
 avl_t *avl_create(void)
@@ -270,7 +211,7 @@ void avl_destroy(avl_t *avl)
     if (avl)
     {
         pthread_mutex_lock(&avl->lock);
-        tree_free(avl->root);
+        dealloc_tree(avl->root);
         pthread_mutex_unlock(&avl->lock);
         
         pthread_mutex_destroy(&avl->lock);
@@ -278,29 +219,19 @@ void avl_destroy(avl_t *avl)
     }
 }
 
-bool avl_insert(avl_t *avl, char *nickname)
+bool avl_insert(avl_t *avl, char *key)
 {
     bool result = false;
 
-    if (avl && nickname)
+    if (avl)
     {
         pthread_mutex_lock(&avl->lock);
 
-        node_t *target = node_find(avl->root, avl->comp, nickname);
+        node_t *target = search(avl->root, key, avl->comp);
         if (!target)
         {
-            node_t *new_node = node_create();
-
-            if (new_node)
-            { 
-                new_node->nickname = strdup(nickname);
-                new_node->client_location = NULL;
-                new_node->is_private = true;
-
-                avl->root = node_insert(avl->root, new_node, avl->comp);
-                
-                result = true;
-            }
+            avl->root = node_insert(avl->root, key, avl->comp);
+            result = true;
         }
 
         pthread_mutex_unlock(&avl->lock);
@@ -309,15 +240,15 @@ bool avl_insert(avl_t *avl, char *nickname)
     return result;
 }
 
-void avl_update_location(avl_t *avl, char *nickname, client_location_t *client_location)
+void avl_update_location(avl_t *avl, char *key, client_location_t *client_location)
 {
     node_t *target = NULL;
 
-    if (avl && nickname)
+    if (avl)
     {
         pthread_mutex_lock(&avl->lock);
 
-        target = node_find(avl->root, avl->comp, nickname);
+        target = search(avl->root, key, avl->comp);
         if (target)
         {
             client_location_destroy(target->client_location);
@@ -328,7 +259,7 @@ void avl_update_location(avl_t *avl, char *nickname, client_location_t *client_l
     }
 }
 
-void avl_update_privacy(avl_t *avl, char *nickname, bool privacy)
+void avl_update_privacy(avl_t *avl, char *key, bool privacy)
 {
     node_t *target = NULL;
 
@@ -336,7 +267,7 @@ void avl_update_privacy(avl_t *avl, char *nickname, bool privacy)
     {
         pthread_mutex_lock(&avl->lock);
 
-        target = node_find(avl->root, avl->comp, nickname);
+        target = search(avl->root, key, avl->comp);
         if (target)
         {
             target->is_private = privacy;
