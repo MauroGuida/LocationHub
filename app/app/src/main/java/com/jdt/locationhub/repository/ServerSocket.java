@@ -95,7 +95,7 @@ public class ServerSocket {
     }
 
     private void updateUsersLocation() throws IOException, ServerResponseException {
-        String response = sendMessage("GET_LOCATIONS ");
+        String response = sendMessage("GET_LOCATIONS");
 
         if (response == null || response.isEmpty() || !response.startsWith(OK_RESPONSE))
             throw new ServerResponseException();
