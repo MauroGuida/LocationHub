@@ -25,8 +25,9 @@
     <string name="clientRange">Trova client nell\'arco di %.2f Km:</string>
     <string name="rangeMinMaxDistance">Distanza minima da te: %.2f Km\nDistanza massima da te: %.2f Km</string>
 
-    <string name="location_unknown">Location Unknown</string>
-    <string name="address_unknown">Address Unknown</string>
+    <string name="location_unknown">Posizione Sconosciuta</string>
+    <string name="address_unknown">Indirizzo Sconosciuto</string>
+    <string name="distance_unknown">Distanza Sconosciuta</string>
     <string name="preferences">Preferenze</string>
 
 </resources>

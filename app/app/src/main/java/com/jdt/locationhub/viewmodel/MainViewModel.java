@@ -59,7 +59,8 @@ public class MainViewModel extends ViewModel {
     public void updateOtherClientsLocation() throws NoInternetConnectionException, ServerResponseException {
         List<User> users = serverSocket.getAllConnectedUsers();
 
-        users.removeIf(u -> u.getDistance() > clientsDiscoveryRange.getValue().get(1) || u.getDistance() < clientsDiscoveryRange.getValue().get(0));
+        users.removeIf(u -> (u.getDistance() > clientsDiscoveryRange.getValue().get(1) || u.getDistance() < clientsDiscoveryRange.getValue().get(0))
+                || u.getDistance() == 0);
 
         connectedClients.setValue(users);
     }

@@ -52,12 +52,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         User u = userList.get(position);
 
         holder.usernameTextV.setText(u.getUsername());
-        holder.distanceTextV.setText(context.getResources().getString(R.string.user_distance, u.getDistance()));
+
+        if (u.getDistance() != 0)
+            holder.distanceTextV.setText(context.getResources().getString(R.string.user_distance, u.getDistance()));
+        else
+            holder.distanceTextV.setText(context.getResources().getString(R.string.distance_unknown));
+
         if (u.getPosition() != null && !u.isPrivate()) {
             holder.latlongTextV.setText(context.getResources().getString(R.string.LatLon,
                     String.valueOf(u.getPosition().getLatitude()),
                     String.valueOf(u.getPosition().getLongitude())));
             holder.addressLineTextV.setText(u.getPosition().getAddressLine());
+        } else {
+            holder.latlongTextV.setText(context.getResources().getString(R.string.location_unknown));
+            holder.addressLineTextV.setText(context.getResources().getString(R.string.address_unknown));
         }
     }
 
