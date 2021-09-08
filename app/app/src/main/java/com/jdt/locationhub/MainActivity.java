@@ -9,14 +9,12 @@ import androidx.lifecycle.ViewModelProviders;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
+
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -30,8 +28,6 @@ import com.jdt.locationhub.fragment.PeopleFragment;
 import com.jdt.locationhub.fragment.SettingsFragment;
 import com.jdt.locationhub.viewmodel.MainViewModel;
 
-import java.io.IOException;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
@@ -70,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Instantiate a new ViewModel for Main activity and initialize it
         mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        mainViewModel.init(getIntent().getStringExtra("USERNAME"));
+        mainViewModel.init(getIntent().getStringExtra("USERNAME"), this);
 
         //Create fused Location client and fetch client location every 10 seconds
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -158,11 +154,8 @@ public class MainActivity extends AppCompatActivity {
         }).addOnSuccessListener(location -> {
             //Retrieve location information
             try {
-                if (location.getLatitude() != 0 && location.getLongitude() != 0) {
-                    Address address = new Geocoder(this, Locale.UK).getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
-                    mainViewModel.updateThisClientPosition(address);
-                }
-            } catch (IOException | NoInternetConnectionException | ServerResponseException e) {
+                mainViewModel.updateThisClientPosition(location.getLatitude(), location.getLongitude());
+            } catch (NoInternetConnectionException | ServerResponseException e) {
                 showNetworkErrorDialog();
             }
         });

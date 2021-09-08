@@ -68,21 +68,8 @@ public class StringParser {
         try {
             double lat = strScanner.nextDouble();
             double log = strScanner.nextDouble();
-            String address = strScanner.next();
-            String locality = strScanner.next();
-            String zipCode = strScanner.next();
-            String countryName = strScanner.next();
-            String countryCode = strScanner.next();
 
-            return new Position.Builder()
-                    .latitude(lat)
-                    .longitude(log)
-                    .addressLine(address)
-                    .locality(locality)
-                    .postalCode(zipCode)
-                    .countryName(countryName)
-                    .countryCode(countryCode)
-                    .build();
+            return new Position(lat, log);
         } catch (NoSuchElementException e) {
             return null;
         }

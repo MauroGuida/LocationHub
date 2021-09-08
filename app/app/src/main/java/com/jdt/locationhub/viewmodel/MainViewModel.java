@@ -1,6 +1,7 @@
 package com.jdt.locationhub.viewmodel;
 
-import android.location.Address;
+import android.content.Context;
+import android.location.Geocoder;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -15,10 +16,12 @@ import com.jdt.locationhub.repository.ServerSocket;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class MainViewModel extends ViewModel {
     private ServerSocket serverSocket;
+    private Geocoder geocoder;
 
     private String username;
     private final MutableLiveData<Position> thisClientPosition = new MutableLiveData<>();
@@ -29,8 +32,10 @@ public class MainViewModel extends ViewModel {
 
     //-----------------------------------------------------------------------------------\\
 
-    public void init(String username) {
+    public void init(String username, Context context) {
         this.username = username;
+        geocoder = new Geocoder(context, Locale.UK);
+
         thisClientPosition.setValue(null);
         PrivacyEnabled.setValue(true);
 
@@ -64,6 +69,14 @@ public class MainViewModel extends ViewModel {
                 || u.getDistance() == 0
                 || (u.getPosition().getLatitude() == 0 && u.getPosition().getLongitude() == 0));
 
+        users.forEach(u -> {
+            try {
+                u.getPosition().setAddressLine(geocoder.getFromLocation(u.getPosition().getLatitude(), u.getPosition().getLongitude(), 1).get(0).getAddressLine(0));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
         connectedClients.setValue(users);
     }
 
@@ -85,18 +98,11 @@ public class MainViewModel extends ViewModel {
 
     //-----------------------------------------------------------------------------------\\
 
-    public void updateThisClientPosition(Address address) throws NoInternetConnectionException, ServerResponseException {
-        Position position = new Position.Builder()
-                .latitude(address.getLatitude())
-                .longitude(address.getLongitude())
-                .addressLine(address.getAddressLine(0))
-                .locality(address.getLocality())
-                .postalCode(address.getPostalCode())
-                .countryName(address.getCountryName())
-                .countryCode(address.getCountryCode())
-                .build();
+    public void updateThisClientPosition(Double latitude, Double longitude) throws NoInternetConnectionException, ServerResponseException {
+        Position position = new Position(latitude, longitude);
 
-        if (!Objects.equals(thisClientPosition.getValue(), position)) {
+        //Sends the new client position to the server only if is changed and is valid
+        if (!Objects.equals(thisClientPosition.getValue(), position) && !(latitude == 0 && longitude == 0)) {
             thisClientPosition.setValue(position);
             serverSocket.sendClientPosition(position);
         }

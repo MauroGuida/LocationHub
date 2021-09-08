@@ -29,10 +29,6 @@ public class User {
         return distance;
     }
 
-    public void setDistance(float distance) {
-        this.distance = distance;
-    }
-
     public boolean isPrivate() {
         return privacy;
     }
@@ -43,10 +39,6 @@ public class User {
 
     public void setPosition(Position position) {
         this.position = position;
-    }
-
-    public String serialize() {
-        return username + " " + position.serialize();
     }
 
     @Override
