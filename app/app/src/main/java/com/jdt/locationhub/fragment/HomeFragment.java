@@ -29,9 +29,11 @@ import com.jdt.locationhub.model.User;
 import com.jdt.locationhub.viewmodel.MainViewModel;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -126,16 +128,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         //Place a Red marker for each client connected to the server and remove the disconnected one
         mainViewModel.getAllClientsPosition().observe(getViewLifecycleOwner(), (Observer<List<User>>) users -> {
             users.forEach(user -> {
-                if (!user.isPrivate())
+                if (!user.isPrivate() && user.getDistance() != 0)
                     setOnMapPoint(new LatLng(user.getPosition().getLatitude(), user.getPosition().getLongitude()), user.getUsername());
-                else if (user.isPrivate() && clientsPositionMarkers.containsKey(user.getUsername()))
+                else if ((user.isPrivate() || user.getDistance() == 0) && clientsPositionMarkers.containsKey(user.getUsername()))
                     removeMapPointByName(user.getUsername());
             });
 
-            for (String markerName : clientsPositionMarkers.keySet()) {
-                if (users.stream().noneMatch(u -> u.getUsername().equals(markerName)))
-                    removeMapPointByName(markerName);
-            }
+            clientsPositionMarkers.entrySet().removeIf(e -> users.stream().noneMatch(u -> u.getUsername().equals(e.getKey())));
         });
 
         //Shows client location information on Marker click
