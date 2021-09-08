@@ -15,7 +15,8 @@ enum log_type_t
     LOG_SIGN_UP,
     LOG_GET_LOCATIONS,
     LOG_SEND_LOCATION,
-    LOG_SET_PRIVACY
+    LOG_SET_PRIVACY,
+    LOG_INVALID_MSG
 };
 typedef enum log_type_t log_type_t;
 

@@ -7,7 +7,8 @@ static const char *log_strings[] =
     [LOG_SIGN_UP]        = "Client requested registration",
     [LOG_GET_LOCATIONS]  = "Client requested all locations",
     [LOG_SEND_LOCATION]  = "Client requested to sent his location",
-    [LOG_SET_PRIVACY]    = "Client requested to change in privacy settings"
+    [LOG_SET_PRIVACY]    = "Client requested to change in privacy settings",
+    [LOG_INVALID_MSG]    = "Client sent an invalid message"
 };
 
 logger_t *logger_create(void)

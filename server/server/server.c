@@ -150,6 +150,7 @@ void *handle_client(void *arg)
                     break;
 
                 default:
+                    log_print(server->logger, LOG_INVALID_MSG, client_ip_addr, client_port_num);
                     break;
                 }
             }
