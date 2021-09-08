@@ -87,34 +87,23 @@ char *extract_nickname(char *str)
 
 client_location_t *extract_client_location(char *str)
 {
-    char *open_delimiter = "[";
-    char *close_delimiter = "]";
-    char *field_delimiter = ";";
-    char *target = NULL;
-    char *start = NULL;
-    char *end = NULL;
-    client_location_t *client_location = NULL;
+    char *copy_str = NULL;
+    char *token = NULL;
+    char *delimiter = " ";
+    double latitude, longitude;
 
-    if ((start = strstr(str, open_delimiter)) != NULL)
-    {
-        start += strlen(open_delimiter);
-        if ((end = strstr(str, close_delimiter)) != NULL)
-        {
-            target = (char *)malloc(end - start + 1);
-            memcpy(target, start, end - start);
-            target[end - start] = '\0';
-        }
-    }
+    copy_str = strdup(str);
+    token = strtok(copy_str, delimiter);
 
-    client_location = client_location_create();
-    for (struct { int i; char *ptr; } s = { 0, strtok(target, field_delimiter) }; s.ptr; s.ptr = strtok(NULL, field_delimiter), ++s.i)
-    {
-        client_location_set(client_location, s.i, s.ptr);
-    }
+    token = strtok(NULL, delimiter);
+    latitude = strtod(token, NULL);
 
-    free(target);
+    token = strtok(NULL, delimiter);
+    longitude = strtod(token, NULL);
 
-    return client_location;
+    free(copy_str);
+
+    return client_location_create(latitude, longitude);
 }
 
 bool extract_privacy(char *str)
@@ -159,19 +148,14 @@ void add_position(node_t *node, node_t *target, char *buf)
         if (curr_position)
         {
             curr_position[0] = '\0';
-            sprintf(curr_position, "%s %f %d [%f;%f;%s;%s;%s;%s;%s]@", node->nickname,
-                                                                     ((node->client_location && target->client_location) ? distance(target->client_location->latitude,
-                                                                                                                                    target->client_location->longitude,
-                                                                                                                                    node->client_location->latitude,
-                                                                                                                                    node->client_location->longitude) : 0.0),
-                                                                     (int)node->is_private,
-                                                                     ((node->client_location) ? node->client_location->latitude : 0.0),
-                                                                     ((node->client_location) ? node->client_location->longitude : 0.0),
-                                                                     ((node->client_location) ? node->client_location->address_line : "null"),
-                                                                     ((node->client_location) ? node->client_location->locality : "null"),
-                                                                     ((node->client_location) ? node->client_location->postal_code : "null"),
-                                                                     ((node->client_location) ? node->client_location->country_name : "null"),
-                                                                     ((node->client_location) ? node->client_location->country_code : "null")); 
+            sprintf(curr_position, "%s %f %d [%f;%f]@", node->nickname,
+                                                        ((node->client_location && target->client_location) ? distance(target->client_location->latitude,
+                                                                                                                       target->client_location->longitude,
+                                                                                                                       node->client_location->latitude,
+                                                                                                                       node->client_location->longitude) : 0.0),
+                                                        (int)node->is_private,
+                                                        ((node->client_location) ? node->client_location->latitude : 0.0),
+                                                        ((node->client_location) ? node->client_location->longitude : 0.0)); 
             strcat(buf, curr_position);
         }
         free(curr_position);

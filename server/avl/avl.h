@@ -30,7 +30,7 @@ struct avl_t
 typedef struct avl_t avl_t;
 
 
-node_t *node_create(void);
+node_t *node_create(char *);
 void node_destroy(node_t *);
 node_t *node_insert(node_t *, char*, comparator);
 node_t *node_remove(node_t *, char *, comparator);
