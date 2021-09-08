@@ -103,6 +103,10 @@ public class MainViewModel extends ViewModel {
 
         //Sends the new client position to the server only if is changed and is valid
         if (!Objects.equals(thisClientPosition.getValue(), position) && !(latitude == 0 && longitude == 0)) {
+            try {
+                position.setAddressLine(geocoder.getFromLocation(latitude, longitude, 1).get(0).getAddressLine(0));
+            } catch (IOException ignored) { }
+
             thisClientPosition.setValue(position);
             serverSocket.sendClientPosition(position);
         }
