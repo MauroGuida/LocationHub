@@ -52,6 +52,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private MaterialCardView locationInfoCardV;
     private TextView usernameTextV;
     private TextView locationTextV;
+    private TextView distanceTextV;
     private TextView addressTextV;
 
     //-----------------------------------------------------------------------------------\\
@@ -84,6 +85,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         locationInfoCardV = v.findViewById(R.id.locationInfo_CardV_FragmentHome);
         usernameTextV = v.findViewById(R.id.username_TextV_FragmentHome);
         locationTextV = v.findViewById(R.id.location_TextV_FragmentHome);
+        distanceTextV = v.findViewById(R.id.distance_TextV_FragmentHome);
         addressTextV = v.findViewById(R.id.address_TextV_FragmentHome);
 
         locationInfoCardV.setVisibility(View.GONE);
@@ -159,6 +161,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         locationTextV.setText(getResources().getString(R.string.LatLon,
                 String.valueOf(position.getLatitude()),
                 String.valueOf(position.getLongitude())));
+        distanceTextV.setVisibility(View.GONE);
         addressTextV.setText(position.getAddressLine());
     };
 
@@ -168,6 +171,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             locationTextV.setText(getResources().getString(R.string.LatLon,
                     String.valueOf(user.getPosition().getLatitude()),
                     String.valueOf(user.getPosition().getLatitude())));
+
+            distanceTextV.setVisibility(View.VISIBLE);
+            distanceTextV.setText(getResources().getString(R.string.user_distance, user.getDistance()));
+
             addressTextV.setText(user.getPosition().getAddressLine());
         }
     });

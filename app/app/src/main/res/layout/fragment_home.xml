@@ -37,6 +37,12 @@
                 android:text="@string/location_unknown"/>
 
             <TextView
+                android:id="@+id/distance_TextV_FragmentHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/distance_unknown"/>
+
+            <TextView
                 android:id="@+id/address_TextV_FragmentHome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
