@@ -57,30 +57,26 @@ client_request_t extract_request(char *str)
 
 char *extract_nickname(char *str)
 {
-    char *copy_str = NULL; 
-    char *ptr = NULL;
-    char *nickname = NULL;
+    char *copy_str = NULL;
     char *delimiter = " ";
+    char *token = NULL;
+    char *nickname = NULL;
 
-    copy_str = (char *)malloc(sizeof(char) * (strlen(str) + 1));
-    strcpy(copy_str, str);
-
-    ptr = strtok(copy_str, delimiter);
-    ptr = strtok(NULL, " ");
-
-    nickname = (char *)malloc(sizeof(char) * (strlen(ptr) + 1));
-    strcpy(nickname, ptr);
-
+    copy_str = strdup(str);
+    token = strtok(copy_str, delimiter);
+    token = strtok(NULL, delimiter);
+    
+    nickname = strdup(token);
     free(copy_str);
-
+    
     return nickname;
 }
 
 client_location_t *extract_client_location(char *str)
 {
     char *copy_str = NULL;
-    char *token = NULL;
     char *delimiter = " ";
+    char *token = NULL;
     double latitude, longitude;
 
     copy_str = strdup(str);
@@ -99,22 +95,20 @@ client_location_t *extract_client_location(char *str)
 
 bool extract_privacy(char *str)
 {
-    char *copy_str = NULL; 
-    char *ptr = NULL;
+    char *copy_str = NULL;
     char *delimiter = " ";
-    bool result = false;
+    char *token = NULL;
+    bool is_private = false;
 
-    copy_str = (char *)malloc(sizeof(char) * (strlen(str) + 1));
-    strcpy(copy_str, str);
-
-    ptr = strtok(copy_str, delimiter);
-    ptr = strtok(NULL, " ");
+    copy_str = strdup(str);
+    token = strtok(copy_str, delimiter);
+    token = strtok(NULL, delimiter);
     
-    result = (strcmp(ptr, "1") == 0);
+    is_private = (strcmp(token, "1") == 0);
     
     free(copy_str);
-    
-    return result;
+
+    return is_private;
 }
 
 void tree_func_apply(node_t *root, node_t *target, char *buf, void (*func)(node_t *, node_t *, char *))
