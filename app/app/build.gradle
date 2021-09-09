@@ -14,6 +14,8 @@ android {
         versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "serverIp", "\""+getServerIP()+"\""
+        buildConfigField "String", "serverPort", "\""+getServerPort()+"\""
     }
 
     buildTypes {
@@ -26,6 +28,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+}
+
+def getServerIP() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("serverIp");
+}
+
+def getServerPort() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("serverPort");
 }
 
 dependencies {

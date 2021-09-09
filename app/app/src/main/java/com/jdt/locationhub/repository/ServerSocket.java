@@ -2,6 +2,7 @@ package com.jdt.locationhub.repository;
 
 import android.os.StrictMode;
 
+import com.jdt.locationhub.BuildConfig;
 import com.jdt.locationhub.exception.NoInternetConnectionException;
 import com.jdt.locationhub.exception.ServerResponseException;
 import com.jdt.locationhub.exception.UsernameAlreadyInUseException;
@@ -29,9 +30,15 @@ public class ServerSocket {
     private static final String ERROR_RESPONSE = "ERR";
     private static final String OK_RESPONSE = "OK";
 
+    //Server messages
+    private static final String GET_LOCATIONS = "GET_LOCATIONS";
+    private static final String SIGN_UP = "SIGN_UP ";
+    private static final String SEND_LOCATION = "SEND_LOCATION ";
+    private static final String SET_PRIVACY = "SET_PRIVACY ";
+
     //Connection Parameters
-    private static final int SERVER_PORT = 7560;
-    private static final String SERVER_IP_ADDRESS = "192.168.178.22"; //TODO AWS SERVER
+    private static final int SERVER_PORT = Integer.parseInt(BuildConfig.serverPort);
+    private static final String SERVER_IP_ADDRESS = BuildConfig.serverIp;
 
     //Input and Output buffers
     private final Socket socket;
@@ -95,7 +102,7 @@ public class ServerSocket {
     }
 
     private void updateUsersLocation() throws IOException, ServerResponseException {
-        String response = sendMessage("GET_LOCATIONS ");
+        String response = sendMessage(GET_LOCATIONS);
 
         if (response == null || response.isEmpty() || !response.startsWith(OK_RESPONSE))
             throw new ServerResponseException();
@@ -107,7 +114,7 @@ public class ServerSocket {
     //-----------------------------------------------------------------------------------\\
 
     public void login(String username) throws UsernameAlreadyInUseException, IOException {
-        String response = sendMessage("SIGN_UP " + username);
+        String response = sendMessage(SIGN_UP + username);
 
         if (response == null || response.isEmpty() || !response.equals(OK_RESPONSE))
             throw new UsernameAlreadyInUseException();
@@ -115,7 +122,7 @@ public class ServerSocket {
 
     public void sendClientPosition(Position p) throws NoInternetConnectionException, ServerResponseException {
         try {
-            String response = sendMessage("SEND_LOCATION " + p.getLatitude() + " " + p.getLongitude());
+            String response = sendMessage(SEND_LOCATION + p.getLatitude() + " " + p.getLongitude());
 
             if (response == null || response.isEmpty() || !response.equals(OK_RESPONSE))
                 throw new ServerResponseException();
@@ -137,7 +144,7 @@ public class ServerSocket {
 
     public void setUserPrivacy(boolean b) throws ServerResponseException, NoInternetConnectionException {
         try {
-            String response = sendMessage("SET_PRIVACY " + (b ? 1 : 0));
+            String response = sendMessage(SET_PRIVACY + (b ? 1 : 0));
 
             if (response == null || response.isEmpty() || !response.equals(OK_RESPONSE))
                 throw new ServerResponseException();
