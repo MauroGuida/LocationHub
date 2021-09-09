@@ -42,26 +42,17 @@ int get_request(char *str)
 
 client_request_t extract_request(char *str)
 {
-    char *ptr = NULL;
+    char *copy_str = NULL;
     char *delimiter = " ";
-    char *request = NULL;
+    char *token = NULL;
     client_request_t req;
 
-    if (str)
-    {
-        if ((ptr = strstr(str, delimiter)) != NULL)
-        {
-            request = (char *)malloc(ptr - str + 1);
-            memcpy(request, str, ptr - str + 1);
-            request[ptr - str] = '\0';
+    copy_str = strdup(str);
+    token = strtok(copy_str, delimiter);
+    req = (client_request_t)get_request(token);
+    free(copy_str);
 
-            req = (client_request_t) get_request(request);
-            free(request);
-            return req;
-        }
-    }
-
-    return -1;
+    return req;
 }
 
 char *extract_nickname(char *str)

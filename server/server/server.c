@@ -117,7 +117,6 @@ void *handle_client(void *arg)
         FD_ZERO(&read_fds);
         FD_SET(client_sockfd, &read_fds);
 
-        // n = read(client_sockfd, buf, BUF_SIZE);
         if (select(client_sockfd + 1, &read_fds, NULL, NULL, &timeout) > 0)
         {
             n = read(client_sockfd, buf, BUF_SIZE);
