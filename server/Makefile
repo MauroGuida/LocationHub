@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O3
+CFLAGS = -Wall -O3 -w
 MYSERVER = myserver
 
 $(MYSERVER): main.o server.o server_utils.o logger.o client.o avl.o
