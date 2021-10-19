@@ -44,7 +44,7 @@ public class ServerSocket {
     private final Socket socket;
     private final InputStreamReader inputStreamReader;
     private final OutputStreamWriter outputStreamWriter;
-    private final BufferedReader bufferedReader;
+        private final BufferedReader bufferedReader;
     private final BufferedWriter bufferedWriter;
 
     //Dataset

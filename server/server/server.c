@@ -217,6 +217,7 @@ int server_init(server_t *server)
 
     if ((err = (server->sockfd = socket(AF_INET, SOCK_STREAM, 0))) == -1)
     {
+        errno = err;
         perror("socket");
         fprintf(stderr, "Failed to create socket.\n");
         return err;
@@ -224,6 +225,7 @@ int server_init(server_t *server)
 
     if ((err = setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option))) == -1)
     {
+        errno = err;
         perror("setsockopt");
         fprintf(stderr, "Failed to allow reause of local addresses.\n");
         return err;
@@ -231,6 +233,7 @@ int server_init(server_t *server)
 
     if ((err = bind(server->sockfd, (struct sockaddr *)&server->sockaddr, sizeof(server->sockaddr))) == -1)
     {
+        errno = err;
         perror("bind");
         fprintf(stderr, "Failed to bind socket to address.\n");
         return err;
@@ -238,6 +241,7 @@ int server_init(server_t *server)
 
     if ((err = listen(server->sockfd, BACKLOG)) == -1)
     {
+        errno = err;
         perror("listen");
         fprintf(stderr, "Failed to put server to listen mode.\n");
         return err;
@@ -261,6 +265,7 @@ int server_accept(server_t *server)
     {
         if ((err = (client_sockfd = accept(server->sockfd, (struct sockaddr *)&client_sockaddr, &client_socklen))) == -1)
         {
+            errno = err;
             perror("accept");
             fprintf(stderr, "Failed to accept new client.\n");
             return err;
